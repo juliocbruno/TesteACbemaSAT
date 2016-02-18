@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="con" path="org.eclipse.fx.ide.jdt.core.JAVAFX_CONTAINER"/>
+	<classpathentry kind="lib" path="C:/eclipse-SDK-4.4-win32-efx-1.1.0/workspace/TesteACbemaSAT/lib/jna.jar"/>
+	<classpathentry kind="lib" path="C:/eclipse-SDK-4.4-win32-efx-1.1.0/workspace/TesteACbemaSAT/lib/platform.jar"/>
+	<classpathentry kind="lib" path="C:/eclipse-SDK-4.4-win32-efx-1.1.0/workspace/TesteACbemaSAT/lib/jdom-2.0.6.jar"/>
+	<classpathentry kind="lib" path="C:/eclipse-SDK-4.4-win32-efx-1.1.0/workspace/TesteACbemaSAT/lib/jdom-2.0.6-contrib.jar"/>
+	<classpathentry kind="lib" path="C:/eclipse-SDK-4.4-win32-efx-1.1.0/workspace/TesteACbemaSAT/lib/jdom-2.0.6-javadoc.jar"/>
+	<classpathentry kind="lib" path="C:/eclipse-SDK-4.4-win32-efx-1.1.0/workspace/TesteACbemaSAT/lib/jdom-2.0.6-junit.jar"/>
+	<classpathentry kind="lib" path="C:/eclipse-SDK-4.4-win32-efx-1.1.0/workspace/TesteACbemaSAT/lib/jdom-2.0.6-sources.jar"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>
