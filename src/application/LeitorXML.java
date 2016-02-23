@@ -75,41 +75,69 @@ public class LeitorXML {
 		System.out.println("CPF/CNPJ do consumidor: "+cpf.getNodeValue());
 		
 		//Passo 6: obter dados da venda
-		NodeList listaCod = raiz.getElementsByTagName("cProd");
-		Node cod = listaCod.item(0).getFirstChild();
 		
-		NodeList listaDescri = raiz.getElementsByTagName("xProd");
-		Node descri = listaDescri.item(0).getFirstChild();
+		//Passo 7: localizar os elemento filhos do det
+		NodeList listaDet = raiz.getElementsByTagName("det");
 		
-		NodeList listaNcm = raiz.getElementsByTagName("NCM");
-		Node ncm = listaNcm.item(0).getFirstChild();
-		
-		NodeList listaCfop = raiz.getElementsByTagName("CFOP");
-		Node cfop = listaCfop.item(0).getFirstChild();
-		
-		NodeList listaUn = raiz.getElementsByTagName("uCom");
-		Node un = listaUn.item(0).getFirstChild();
-		
-		NodeList listaQtde = raiz.getElementsByTagName("qCom");
-		Node qtde = listaQtde.item(0).getFirstChild();
-		
-		NodeList listaValorUn = raiz.getElementsByTagName("vProd");
-		Node valorUn = listaValorUn.item(0).getFirstChild();
+		//Passo 8: obter cada elemento do elemento det
+		for (int i = 0; i < listaDet.getLength(); i++) {
+			
+			//como cada elemento do NodeList é um nó, precisamos fazer o cast
+			Element venda = (Element) listaDet.item(i);
+			
+			//Passo 9: obter o atributo id do contato
+			Attr id = venda.getAttributeNode("nItem");
+			System.out.println("ID do produto: "+id.getValue());
+			
+			//Passo 10: obtem os elementos da venda
+			NodeList listaCod = raiz.getElementsByTagName("cProd");
+			Node cod = listaCod.item(0).getFirstChild();
+			System.out.println("codigo: "+cod.getNodeValue());
+			
+			NodeList listaDescri = raiz.getElementsByTagName("xProd");
+			Node descri = listaDescri.item(0).getFirstChild();
+			System.out.println("Descrição: "+descri.getNodeValue());
+			
+			NodeList listaNcm = raiz.getElementsByTagName("NCM");
+			Node ncm = listaNcm.item(0).getFirstChild();
+			System.out.println("NCM: "+ncm.getNodeValue());
+			
+			NodeList listaCfop = raiz.getElementsByTagName("CFOP");
+			Node cfop = listaCfop.item(0).getFirstChild();
+			System.out.println("CFOP: "+cfop.getNodeValue());
+			
+			NodeList listaUn = raiz.getElementsByTagName("uCom");
+			Node un = listaUn.item(0).getFirstChild();
+			System.out.println("UN: "+un.getNodeValue());
+			
+			NodeList listaQtde = raiz.getElementsByTagName("qCom");
+			Node qtde = listaQtde.item(0).getFirstChild();
+			System.out.println("Quantidade: "+qtde.getNodeValue());
+			
+			NodeList listaValorUn = raiz.getElementsByTagName("vProd");
+			Node valorUn = listaValorUn.item(0).getFirstChild();
+			System.out.println("Valor Unit.: "+valorUn.getNodeValue());
 
-		NodeList listaAliq = raiz.getElementsByTagName("vItem12741");
-		Node aliq = listaAliq.item(0).getFirstChild();
-		
-		NodeList listaValorItem = raiz.getElementsByTagName("vItem");
-		Node valorItem = listaValorItem.item(0).getFirstChild();
-		
-		NodeList listaIndRegra = raiz.getElementsByTagName("indRegra");
-		Node indRegra = listaIndRegra.item(0).getFirstChild();
-		
-		NodeList listaDesc = raiz.getElementsByTagName("vDesc");
-		Node indDesc = listaDesc.item(0).getFirstChild();
-		
-		NodeList listaOutro = raiz.getElementsByTagName("vOutro");
-		Node outro = listaOutro.item(0).getFirstChild();
+			NodeList listaAliq = raiz.getElementsByTagName("vItem12741");
+			Node aliq = listaAliq.item(0).getFirstChild();
+			System.out.println("Aliquota: "+aliq.getNodeValue());
+			
+			NodeList listaValorItem = raiz.getElementsByTagName("vItem");
+			Node valorItem = listaValorItem.item(0).getFirstChild();
+			System.out.println("Valor do Item: "+valorItem.getNodeValue());
+			
+			NodeList listaIndRegra = raiz.getElementsByTagName("indRegra");
+			Node indRegra = listaIndRegra.item(0).getFirstChild();
+			System.out.println("Regra: "+indRegra.getNodeValue());
+			
+			NodeList listaDesc = raiz.getElementsByTagName("vDesc");
+			Node indDesc = listaDesc.item(0).getFirstChild();
+			System.out.println("Desconto: "+indDesc.getNodeValue());
+			
+			NodeList listaOutro = raiz.getElementsByTagName("vOutro");
+			Node outro = listaOutro.item(0).getFirstChild();
+			System.out.println("Outros: "+outro.getNodeValue());
+		}				
 		
 		//Passo 7: obter totais da venda
 		//obter total bruta da venda
@@ -140,8 +168,8 @@ public class LeitorXML {
 			LeitorXML parser = new LeitorXML();
 			
 			try {
-				parser.LeituraXml("C:\\cfe\\CFe35160200735540000113590001246230000745496827.xml");
-				//parser.LeituraXml("CFe35160282373077000171599000039140003427198508.xml");
+				//parser.LeituraXml("C:\\cfe\\CFe35160200735540000113590001246230000745496827.xml");
+				parser.LeituraXml("c:\\APPBEMASAT\\CFe35160282373077000171599000064200000475452152.xml");
 				
 			} catch (ParserConfigurationException e) {
 				System.out.println("O parser não foi configurado corretamente");

@@ -79,6 +79,14 @@ public class Main extends Application {
 		
 		gerador = new Random();
 		
+		File dirTesteACBemaSAT = new File("C:\\APPBEMASAT");
+		if (dirTesteACBemaSAT.mkdir()) {
+			
+			log.info("Pasta "+ dirTesteACBemaSAT.getName()+" criada com sucesso!");
+		}else {
+			log.info("Não foi possível criar o diretório "+dirTesteACBemaSAT.getName()+" ou ele já existe.");
+		}
+		
 		try {
 
 			// Logo
