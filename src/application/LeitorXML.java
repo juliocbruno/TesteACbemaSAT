@@ -7,6 +7,7 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.apache.log4j.Logger;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -16,21 +17,23 @@ import org.xml.sax.SAXException;
 
 public class LeitorXML {
 	
-	public void LeituraXml(String arquivoXml) throws SAXException, IOException, ParserConfigurationException {
+	static Logger log = Logger.getLogger(LeitorXML.class);
+	
+public void LeituraXml(String  arquivoXml) throws SAXException, IOException, ParserConfigurationException {
 		
 		//fazer o parse do arquivo e criar o documento XML
-		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();		
 		DocumentBuilder db = dbf.newDocumentBuilder();
 		Document doc = db.parse(arquivoXml);
 		
 		//Passo 1: obter o elemento raiz
 		Element raiz = doc.getDocumentElement();
-		System.out.println("O elemento raiz é: "+raiz.getNodeName());				
+		log.info("O elemento raiz é: "+raiz.getNodeName());				
 		
 		//Passo 2: obter nome do emitente
 		NodeList listaNome = raiz.getElementsByTagName("xNome");
 		Node nome = listaNome.item(0).getFirstChild();
-		System.out.println("Nome: " + nome.getNodeValue());
+		log.info("Nome: " + nome.getNodeValue());
 		
 		//Passo 3: obter endereço do emitente	
 		NodeList listaRua = raiz.getElementsByTagName("xLgr");
@@ -51,7 +54,7 @@ public class LeitorXML {
 		NodeList listaCep = raiz.getElementsByTagName("CEP");
 		Node cep = listaCep.item(0).getFirstChild();
 		
-		System.out.println("Endereço: " + rua.getNodeValue()+", "+num.getNodeValue()+" "
+		log.info("Endereço: " + rua.getNodeValue()+", "+num.getNodeValue()+" "
 		+compl.getNodeValue()+" "+bairro.getNodeValue()+" "+cidade.getNodeValue()+" CEP: "+
 		cep.getNodeValue());
 		
@@ -63,7 +66,7 @@ public class LeitorXML {
 		NodeList listaIe = raiz.getElementsByTagName("IE");
 		Node ie = listaIe.item(0).getFirstChild();
 		
-		System.out.println("CNPJ: " + cnpj.getNodeValue()+" IE: "+ie.getNodeValue());
+		log.info("CNPJ: " + cnpj.getNodeValue()+" IE: "+ie.getNodeValue());
 		
 		//Passo 5: obter cpf do destinatário
 		NodeList listaCpf = raiz.getElementsByTagName("CPF");
@@ -73,7 +76,7 @@ public class LeitorXML {
 		}
 		Node cpf = listaCpf.item(0).getFirstChild();
 		
-		System.out.println("CPF/CNPJ do consumidor: "+cpf.getNodeValue());
+		log.info("CPF/CNPJ do consumidor: "+cpf.getNodeValue());
 		
 		//Passo 6: obter dados da venda
 		
@@ -88,56 +91,56 @@ public class LeitorXML {
 			
 			//Passo 9: obter o atributo id do det
 			Attr id = venda.getAttributeNode("nItem");
-			System.out.println("\nID do produto: "+id.getValue());
+			log.info("\nID do produto: "+id.getValue());
 			
 			//Passo 10: obtem os elementos da venda
 			NodeList listaCod = raiz.getElementsByTagName("cProd");
 			Node cod = listaCod.item(0).getFirstChild();
-			System.out.println("codigo: "+cod.getNodeValue());
+			log.info("codigo: "+cod.getNodeValue());
 			
 			NodeList listaDescri = raiz.getElementsByTagName("xProd");
 			Node descri = listaDescri.item(0).getFirstChild();
-			System.out.println("Descrição: "+descri.getNodeValue());
+			log.info("Descrição: "+descri.getNodeValue());
 			
 			NodeList listaNcm = raiz.getElementsByTagName("NCM");
 			Node ncm = listaNcm.item(0).getFirstChild();
-			System.out.println("NCM: "+ncm.getNodeValue());
+			log.info("NCM: "+ncm.getNodeValue());
 			
 			NodeList listaCfop = raiz.getElementsByTagName("CFOP");
 			Node cfop = listaCfop.item(0).getFirstChild();
-			System.out.println("CFOP: "+cfop.getNodeValue());
+			log.info("CFOP: "+cfop.getNodeValue());
 			
 			NodeList listaUn = raiz.getElementsByTagName("uCom");
 			Node un = listaUn.item(0).getFirstChild();
-			System.out.println("UN: "+un.getNodeValue());
+			log.info("UN: "+un.getNodeValue());
 			
 			NodeList listaQtde = raiz.getElementsByTagName("qCom");
 			Node qtde = listaQtde.item(0).getFirstChild();
-			System.out.println("Quantidade: "+qtde.getNodeValue());
+			log.info("Quantidade: "+qtde.getNodeValue());
 			
 			NodeList listaValorUn = raiz.getElementsByTagName("vProd");
 			Node valorUn = listaValorUn.item(0).getFirstChild();
-			System.out.println("Valor Unit.: "+valorUn.getNodeValue());
+			log.info("Valor Unit.: "+valorUn.getNodeValue());
 
 			NodeList listaAliq = raiz.getElementsByTagName("vItem12741");
 			Node aliq = listaAliq.item(0).getFirstChild();
-			System.out.println("Aliquota: "+aliq.getNodeValue());
+			log.info("Aliquota: "+aliq.getNodeValue());
 			
 			NodeList listaValorItem = raiz.getElementsByTagName("vItem");
 			Node valorItem = listaValorItem.item(0).getFirstChild();
-			System.out.println("Valor do Item: "+valorItem.getNodeValue());
+			log.info("Valor do Item: "+valorItem.getNodeValue());
 			
 			NodeList listaIndRegra = raiz.getElementsByTagName("indRegra");
 			Node indRegra = listaIndRegra.item(0).getFirstChild();
-			System.out.println("Regra: "+indRegra.getNodeValue());
+			log.info("Regra: "+indRegra.getNodeValue());
 			
 			NodeList listaDesc = raiz.getElementsByTagName("vDesc");
 			Node indDesc = listaDesc.item(0).getFirstChild();
-			System.out.println("Desconto: "+indDesc.getNodeValue());
+			log.info("Desconto: "+indDesc.getNodeValue());
 			
 			NodeList listaOutro = raiz.getElementsByTagName("vOutro");
 			Node outro = listaOutro.item(0).getFirstChild();
-			System.out.println("Outros: "+outro.getNodeValue());
+			log.info("Outros: "+outro.getNodeValue());
 		}				
 		
 		//Passo 11: obter totais da venda
@@ -147,30 +150,30 @@ public class LeitorXML {
 		
 		NodeList listaTotal = total.getElementsByTagName("vProd");
 		Node totalVenda = listaTotal.item(0).getFirstChild();				
-		System.out.println("Total: "+totalVenda.getNodeValue());
+		log.info("Total: "+totalVenda.getNodeValue());
 		
 		
 		//obter o valor total de descontos, se houver	
 		NodeList listaDescTotal = total.getElementsByTagName("vDesc");
 		if (listaDescTotal==null) {
-			System.out.println("Desconto nulo");
+			log.info("Desconto nulo");
 		}		
 		Node descTotal = listaDescTotal.item(0).getFirstChild();
-		System.out.println("Desconto total: "+descTotal.getNodeValue());
+		log.info("Desconto total: "+descTotal.getNodeValue());
 		
 		
 		//obter o valor total de acréscimos, se houver		
 		NodeList listaAcrescTotal = total.getElementsByTagName("vOutro");
 		if (listaAcrescTotal==null) {
-			System.out.println("Acréscimo nulo");
+			log.info("Acréscimo nulo");
 		}
 		Node acrescTotal = listaAcrescTotal.item(0).getFirstChild();
-		System.out.println("Acréscimo total: "+acrescTotal.getNodeValue());
+		log.info("Acréscimo total: "+acrescTotal.getNodeValue());
 		
 		//obter o valor total de tributos
 		NodeList listaTrib = total.getElementsByTagName("vCFeLei12741");
 		Node trib = listaTrib.item(0).getFirstChild();
-		System.out.println("Total de tributos: "+trib.getNodeValue());
+		log.info("Total de tributos: "+trib.getNodeValue());
 		
 		//Passo 12: obter informações do final do cupom		
 		// obter elemento infAdic
@@ -180,12 +183,12 @@ public class LeitorXML {
 		//obter informações complementares
 		NodeList listaInfCompl = info.getElementsByTagName("infCpl");
 		Node infCompl = listaInfCompl.item(0).getFirstChild();
-		System.out.println("Informações Compl.: "+infCompl.getNodeValue());
+		log.info("Informações Compl.: "+infCompl.getNodeValue());
 		
 		//obter observações fisco
 		NodeList listaObsFisco = info.getElementsByTagName("obsFisco");
 		Node obsFisco = listaObsFisco.item(0).getFirstChild();
-		System.out.println("Obs Fisco: "+obsFisco.getNodeValue());
+		log.info("Obs Fisco: "+obsFisco.getNodeValue());
 		
 		
 		//Passo 13: Obter chave de acesso
@@ -194,36 +197,13 @@ public class LeitorXML {
 		Element chave = (Element) listaInfCFeChave.item(0);		
 		//obter o atributo id do infCFe
 		Attr id = chave.getAttributeNode("Id");
-		System.out.println("Chave de acesso: "+id.getValue());
+		log.info("Chave de acesso: "+id.getValue());
 		
 		//Passo 14: obter o QR Code
 		NodeList listaAssQRCode = raiz.getElementsByTagName("assinaturaQRCODE");
 		Node assQRCode = listaAssQRCode.item(0).getFirstChild();
-		System.out.println("Ass. QRCode: "+assQRCode.getNodeValue());
-		
-		
-		
-	}
-	
-	
-		public static void main(String[] args){
-			LeitorXML parser = new LeitorXML();
-			
-			try {
-				//parser.LeituraXml("C:\\cfe\\CFe35160200735540000113590001246230000745496827.xml");
-				parser.LeituraXml("c:\\APPBEMASAT\\CFe35160282373077000171599000064200000475452152.xml");
-				
-			} catch (ParserConfigurationException e) {
-				System.out.println("O parser não foi configurado corretamente");
-				e.printStackTrace();
-			}  catch (SAXException e) {
-				System.out.println("Problema ao fazer o parser");
-				e.printStackTrace();
-			} catch (IOException e) {
-				System.out.println("O arquivo não pode ser lido");
-				e.printStackTrace();
-			}
-		}
+		log.info("Ass. QRCode: "+assQRCode.getNodeValue());
+}
 		
 	
 	

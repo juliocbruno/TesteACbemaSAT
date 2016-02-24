@@ -11,13 +11,19 @@ import javax.xml.bind.JAXBElement;
 import javax.xml.bind.Unmarshaller;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PatternLayout;
 import org.apache.log4j.PropertyConfigurator;
 import org.apache.log4j.RollingFileAppender;
+import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
 
 import com.sun.org.apache.xerces.internal.impl.dv.util.Base64;
 
@@ -37,15 +43,18 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
 import javafx.stage.Stage;
+import jdk.internal.org.xml.sax.SAXParseException;
 
 public class Main extends Application {
 	
-	Logger log = Logger.getLogger(Main.class);
+	static Logger log = Logger.getLogger(Main.class);
 
 	BemaSAT Bema = BemaSAT.instance;
 	MP2032 mp2032 = MP2032.instance;
 
 	String retorno = "";
+	static String cfe = "";
+	static String arquivoXml = "";
 
 	// Componentes
 	Image logo;
@@ -246,7 +255,7 @@ public class Main extends Application {
 					+ "<indRatISSQN>S</indRatISSQN>\n"
 					+ "</emit>\n"
 					+ "<dest>\n"
-					+ "<CPF></CPF>\n"
+					+ "<CPF>111111111</CPF>\n"
 					+ "</dest>\n"
 					+ "<det nItem=\"1\">\n"
 					+ "<prod>\n"
@@ -362,18 +371,22 @@ public class Main extends Application {
 							 File arquivo;  
 							 
 							//Cria o arquivo xml com a chave de acesso no C:\
-				            arquivo = new File("C:\\"+retornoStr[8]+".xml");  
+							cfe = retornoStr[8];
+				            arquivo = new File("C:\\APPBEMASAT\\"+retornoStr[8]+".xml");  
 				            log.info("Criando o arquivo: "+arquivo.toString());
 				            FileOutputStream fos = new FileOutputStream(arquivo); 
 				            fos.write(decoded.getBytes());
 				            
-				            //Montando a impressão
-				            File arquivoXml = new File("C:\\"+retornoStr[8]+".xml");				            
+				            LeitorXML leitorXml = new LeitorXML();
+							leitorXml.LeituraXml(arquivo.getName());
+				            
+				            //Montando a impressão				           				            
 				            
 							} catch (IOException e) {
 								log.error("Erro de IOException na decodificação do retorno: ",e);									
 								e.printStackTrace();
 							}
+														
 					}
 					catch (Exception e) {
 
@@ -382,26 +395,6 @@ public class Main extends Application {
 				}	
 				
 			});
-		
-            //Botão Imprimir---------------------------------------------------------------
-            BtImprimirVenda = new Button("Imprimir CF-e");
-            BtImprimirVenda.setOnAction(new EventHandler<ActionEvent>() {
-
-				public void handle(ActionEvent arg0) {
-					// TODO Imprimir CF-e
-					int iRetorno;
-					
-					/*JAXBContext context = JAXBContext.newInstance("br.com.caelum");
-					Unmarshaller unmarshaller = context.createUnmarshaller();
-					JAXBElement<emit> element = (JAXBElement<Carro>) unmarshaller.unmarshal(new File("resources/carro.xml"));
-					Carro carro = element.getValue();*/
-					
-					String BufTrans = "";
-					iRetorno = mp2032.BematechTX(BufTrans );
-										
-				}
-			});
-            
 
 			// Posicionamento dos componentes no Pane=======================================
 			LbSessao.setTranslateX(20); // define orientação horizontal
@@ -448,10 +441,32 @@ public class Main extends Application {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-	}	
 	
-	public static void main(String[] args) {
-		launch(args);				
+}
+	
+	public static void main(String[] args) throws SAXParseException {
+		launch(args);	
+		
+		LeitorXML parser = new LeitorXML();
+		
+		try {
+			//parser.LeituraXml("C:\\cfe\\CFe35160200735540000113590001246230000745496827.xml");
+			parser.LeituraXml("c:\\APPBEMASAT\\"+cfe+".xml");
+			if (parser!=null) {
+				log.info("leitura do XML realizada com sucesso");
+			}
+			log.info("Erro de leitura do parse xml");
+			
+		} catch (ParserConfigurationException e) {
+			log.info("O parser não foi configurado corretamente");
+			log.fatal(e);
+		}  catch (SAXException e) {
+			log.fatal("Problema ao fazer o parser");
+			log.fatal(e);
+		} catch (IOException e) {
+			log.fatal("O arquivo não pode ser lido");
+			log.fatal(e);
+		}
 		
 	}
 }
