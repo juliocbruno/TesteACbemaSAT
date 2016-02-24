@@ -224,7 +224,7 @@ public class Main extends Application {
 				}
 			});
 			
-			//EnviarDadosVenda
+			//EnviarDadosVenda-------------------------------------------------------------------
 			BtEnviarVenda = new Button("EnviarDadosVenda");
             BtEnviarVenda.setOnAction(new EventHandler<ActionEvent>() {
 			
@@ -344,7 +344,7 @@ public class Main extends Application {
 							AlRetorno.getDialogPane().setContent(expContent);
 
 							AlRetorno.showAndWait();
-							
+		
 							TfChaveAcesso.setText(retornoStr[8]);
 							//Decodificando retorno Base64
 							String xmlRetornoVenda = retornoStr[6];

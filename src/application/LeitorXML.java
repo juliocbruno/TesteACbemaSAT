@@ -1,6 +1,7 @@
 package application;
 
 import java.io.IOException;
+import java.util.List;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -85,9 +86,9 @@ public class LeitorXML {
 			//como cada elemento do NodeList é um nó, precisamos fazer o cast
 			Element venda = (Element) listaDet.item(i);
 			
-			//Passo 9: obter o atributo id do contato
+			//Passo 9: obter o atributo id do det
 			Attr id = venda.getAttributeNode("nItem");
-			System.out.println("ID do produto: "+id.getValue());
+			System.out.println("\nID do produto: "+id.getValue());
 			
 			//Passo 10: obtem os elementos da venda
 			NodeList listaCod = raiz.getElementsByTagName("cProd");
@@ -139,31 +140,72 @@ public class LeitorXML {
 			System.out.println("Outros: "+outro.getNodeValue());
 		}				
 		
-		//Passo 7: obter totais da venda
+		//Passo 11: obter totais da venda
 		//obter total bruta da venda
-		NodeList listaTotalizador = raiz.getElementsByTagName("ICMSTot");
+		NodeList listaTotalizador = raiz.getElementsByTagName("total");
 		Element total = (Element) listaTotalizador.item(0);
+		
 		NodeList listaTotal = total.getElementsByTagName("vProd");
-		Node totalVenda = listaTotal.item(0).getFirstChild();
+		Node totalVenda = listaTotal.item(0).getFirstChild();				
+		System.out.println("Total: "+totalVenda.getNodeValue());
 		
-		System.out.println("Tag pai: "+total.getNodeName());
-		System.out.println(" Tag: "+totalVenda.getNodeName());
-		System.out.println(" Total: "+totalVenda.getNodeValue());
 		
-		NodeList listaDescTotal = raiz.getElementsByTagName("vDescSubtot");
-		if (listaDescTotal==null){
-			Node descTotal = null;
-		}
+		//obter o valor total de descontos, se houver	
+		NodeList listaDescTotal = total.getElementsByTagName("vDesc");
+		if (listaDescTotal==null) {
+			System.out.println("Desconto nulo");
+		}		
 		Node descTotal = listaDescTotal.item(0).getFirstChild();
+		System.out.println("Desconto total: "+descTotal.getNodeValue());
 		
-		NodeList listaAcrescTotal = raiz.getElementsByTagName("vAcresSubtot");
+		
+		//obter o valor total de acréscimos, se houver		
+		NodeList listaAcrescTotal = total.getElementsByTagName("vOutro");
 		if (listaAcrescTotal==null) {
-			Node acrescTotal = null;
-			return;
+			System.out.println("Acréscimo nulo");
 		}
 		Node acrescTotal = listaAcrescTotal.item(0).getFirstChild();
+		System.out.println("Acréscimo total: "+acrescTotal.getNodeValue());
+		
+		//obter o valor total de tributos
+		NodeList listaTrib = total.getElementsByTagName("vCFeLei12741");
+		Node trib = listaTrib.item(0).getFirstChild();
+		System.out.println("Total de tributos: "+trib.getNodeValue());
+		
+		//Passo 12: obter informações do final do cupom		
+		// obter elemento infAdic
+		NodeList listaInfo = raiz.getElementsByTagName("infAdic");
+		Element info = (Element) listaInfo.item(0);
+		
+		//obter informações complementares
+		NodeList listaInfCompl = info.getElementsByTagName("infCpl");
+		Node infCompl = listaInfCompl.item(0).getFirstChild();
+		System.out.println("Informações Compl.: "+infCompl.getNodeValue());
+		
+		//obter observações fisco
+		NodeList listaObsFisco = info.getElementsByTagName("obsFisco");
+		Node obsFisco = listaObsFisco.item(0).getFirstChild();
+		System.out.println("Obs Fisco: "+obsFisco.getNodeValue());
+		
+		
+		//Passo 13: Obter chave de acesso
+		NodeList listaInfCFeChave = raiz.getElementsByTagName("infCFe");
+		//como cada elemento do NodeList é um nó, precisamos fazer o cast
+		Element chave = (Element) listaInfCFeChave.item(0);		
+		//obter o atributo id do infCFe
+		Attr id = chave.getAttributeNode("Id");
+		System.out.println("Chave de acesso: "+id.getValue());
+		
+		//Passo 14: obter o QR Code
+		NodeList listaAssQRCode = raiz.getElementsByTagName("assinaturaQRCODE");
+		Node assQRCode = listaAssQRCode.item(0).getFirstChild();
+		System.out.println("Ass. QRCode: "+assQRCode.getNodeValue());
+		
+		
 		
 	}
+	
+	
 		public static void main(String[] args){
 			LeitorXML parser = new LeitorXML();
 			
