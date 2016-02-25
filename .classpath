@@ -11,5 +11,6 @@
 	<classpathentry kind="lib" path="C:/Users/b1104279/Desktop/workspace/TesteAC/TesteACbemaSAT/lib/jdom-2.0.6-junit.jar"/>
 	<classpathentry kind="lib" path="C:/Users/b1104279/Desktop/workspace/TesteAC/TesteACbemaSAT/lib/jdom-2.0.6-sources.jar"/>
 	<classpathentry kind="lib" path="C:/Users/b1104279/Desktop/workspace/TesteAC/TesteACbemaSAT/lib/log4j-1.2.17.jar"/>
+	<classpathentry kind="lib" path="C:/Users/b1104279/git/TesteACbemaSATGit/lib/comm.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

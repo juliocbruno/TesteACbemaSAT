@@ -1,1 +1,120 @@
-<CFe><infCFe Id="CFe35160282373077000171599000039140003427198508" versao="0.06" versaoDadosEnt="00.06" versaoSB="010100"><ide><cUF>35</cUF><cNF>719850</cNF><mod>59</mod><nserieSAT>900003914</nserieSAT><nCFe>000342</nCFe><dEmi>20160215</dEmi><hEmi>114430</hEmi><cDV>8</cDV><tpAmb>2</tpAmb><CNPJ>16716114000172</CNPJ><signAC>SGR-SAT SISTEMA DE GESTAO E RETAGUARDA DO SAT</signAC><assinaturaQRCODE>APrPAmzIkjhMSpv9nVK7ZulhhPlVRgGWqfSf+2b2KkbFBSvPXfAlDMln5v1/MN2XlDGvzyVoHSWtGyzXpZ+FDYnm4N/Pnz2arP/lhiO27/lhqN7mGDcClVK9i7HXI0JLArfnCz662YmRh5akFALo3TfNF/HmqMydnq8Rrl++lU0FOHgJ0srYepUoEg2JLj0ZVQlV0g30I8wAfIOIAnlcfyLD7wpBGczb8HAXpdN252OFZQSS2LXXp0d/bcgt+EEQrKoNBGG3u1G0s0oDOov+42hnOu8KIxZd2aJcK04wRU9sg/Hn7XevphCHA8QJq5bGQ39z8RhU+HcNrOeFeiLhVw==</assinaturaQRCODE><numeroCaixa>003</numeroCaixa></ide><emit><CNPJ>82373077000171</CNPJ><xNome>BEMATECH S.A</xNome><enderEmit><xLgr>RUI BARBOSA</xLgr><nro>2529</nro><xCpl>: MODULOS 06 07 E 08;</xCpl><xBairro>IPE</xBairro><xMun>SAO JOSE DOS PINHAIS</xMun><CEP>83055320</CEP></enderEmit><IE>111111111111</IE><cRegTrib>1</cRegTrib><indRatISSQN>S</indRatISSQN></emit><dest><CPF>80871740540</CPF></dest><det nItem="1"><prod><cProd>1234567890</cProd><xProd>AGUA MINERAL SEM GAS - COPO 200 ML</xProd><NCM>22011000</NCM><CFOP>5102</CFOP><uCom>UN</uCom><qCom>1.0000</qCom><vUnCom>1.00</vUnCom><vProd>1.00</vProd><indRegra>A</indRegra><vDesc>0.00</vDesc><vOutro>0.00</vOutro><vItem>1.00</vItem></prod><imposto><vItem12741>0.42</vItem12741><ICMS><ICMS00><Orig>0</Orig><CST>00</CST><pICMS>0.00</pICMS><vICMS>0.00</vICMS></ICMS00></ICMS><PIS><PISNT><CST>04</CST></PISNT></PIS><COFINS><COFINSNT><CST>04</CST></COFINSNT></COFINS></imposto></det><total><ICMSTot><vICMS>0.00</vICMS><vProd>1.00</vProd><vDesc>0.00</vDesc><vPIS>0.00</vPIS><vCOFINS>0.00</vCOFINS><vPISST>0.00</vPISST><vCOFINSST>0.00</vCOFINSST><vOutro>0.00</vOutro></ICMSTot><vCFe>1.00</vCFe><vCFeLei12741>0.80</vCFeLei12741></total><pgto><MP><cMP>01</cMP><vMP>50.00</vMP></MP><vTroco>49.00</vTroco></pgto><infAdic><infCpl>Obrigado, volte sempre!</infCpl><obsFisco xCampo="xCampo1"><xTexto>xTexto1</xTexto></obsFisco></infAdic></infCFe><Signature xmlns="http://www.w3.org/2000/09/xmldsig#"><SignedInfo xmlns="http://www.w3.org/2000/09/xmldsig#"><CanonicalizationMethod Algorithm="http://www.w3.org/TR/2001/REC-xml-c14n-20010315"></CanonicalizationMethod><SignatureMethod Algorithm="http://www.w3.org/2001/04/xmldsig-more#rsa-sha256"></SignatureMethod><Reference URI="#CFe35160282373077000171599000039140003427198508"><Transforms><Transform Algorithm="http://www.w3.org/2000/09/xmldsig#enveloped-signature"></Transform><Transform Algorithm="http://www.w3.org/TR/2001/REC-xml-c14n-20010315"></Transform></Transforms><DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256"></DigestMethod><DigestValue>S//EhiE51uiPEz4Bt0UYmnmrg2zps6nowgr7WeOyQBs=</DigestValue></Reference></SignedInfo><SignatureValue>VE5ku01GBc88DwBBisQsCZIKwhz87qUHrOxV++pr/xoKcB/KrvyYyWxYldTWxRwah3+ESX4Ji4jgB8p6xlzksNeOZqU26xaErEhjtjQ9dan3RUNcucQmYS/tAWLOY8J6ePvsKxBB6452Ucredi2rEuWwXbKmb+DPlmYLZe0L3BQ5adm+E53wdC6nvPMUK/w+G/SPjagDQ0OHnLiMovYZnGCce7WvV+ShfR9kHW3Po1RodLwx3BHV8/Lmvp55HY6rlM3oEErKUM+d2KjZ7g6Zl20XNywGMcI2zeg4DZRxiKvDoLA2k2f2LwjCMqHPMfrd8harhjYBu7ER+sdZxqTGyA==</SignatureValue><KeyInfo><X509Data><X509Certificate>MIIGoTCCBImgAwIBAgIJASDsRq/44ogDMA0GCSqGSIb3DQEBCwUAMGcxCzAJBgNVBAYTAkJSMTUwMwYDVQQKEyxTZWNyZXRhcmlhIGRhIEZhemVuZGEgZG8gRXN0YWRvIGRlIFNhbyBQYXVsbzEhMB8GA1UEAxMYQUMgU0FUIGRlIFRlc3RlIFNFRkFaIFNQMB4XDTE1MDcxNTEyMTkzOFoXDTIwMDcxNTEyMTkzOFowgaYxEjAQBgNVBAUTCTkwMDAwMzkxNDELMAkGA1UEBhMCQlIxDzANBgNVBAgTBlBhcmFuYTERMA8GA1UEChMIU0VGQVotU1AxDzANBgNVBAsTBkFDLVNBVDEoMCYGA1UECxMfQXV0ZW50aWNhZG8gcG9yIEFSIFNFRkFaIFNQIFNBVDEkMCIGA1UEAxMbQkVNQVRFQ0ggUy5BOjgyMzczMDc3MDAwMTcxMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAwuLFtbHbqCWWaEFjqG/i6nGtzKMMCdMZ7TE8ZIrEF9MHC+POkAMqoaXyyrTlAx3rjLDfQ0pTSO/w23v10/ZjK546WklhED1zu06vlU6G9sQ/nSApb5aLAVFZf5W1+euj4WrGv3T2OjSQNJy4/e5DpUnWrM8DvI9bGJhagSYvlDOs7lxCi+IiZ+9A0o4sG+kqlBAZNArrkox6TUevwTxqQikO5Mue48OYP3iQzeYFZ5KpfUPKVrNIAK/q9gaJp+U+23LmYxkRPWyPm9batxfxXsbeBI4H2JzbBjurdZ4z1uca1P1/IiaGoG4SLi6l8GO0lb9sTY4kRFTqRmZ6gapE9wIDAQABo4ICDjCCAgowDgYDVR0PAQH/BAQDAgXgMHsGA1UdIAR0MHIwcAYJKwYBBAGB7C0DMGMwYQYIKwYBBQUHAgEWVWh0dHA6Ly9hY3NhdC5pbXByZW5zYW9maWNpYWwuY29tLmJyL3JlcG9zaXRvcmlvL2RwYy9hY3NhdHNlZmF6c3AvZHBjX2Fjc2F0c2VmYXpzcC5wZGYwawYDVR0fBGQwYjBgoF6gXIZaaHR0cDovL2Fjc2F0LXRlc3RlLmltcHJlbnNhb2ZpY2lhbC5jb20uYnIvcmVwb3NpdG9yaW8vbGNyL2Fjc2F0c2VmYXpzcC9hY3NhdHNlZmF6c3BjcmwuY3JsMIGmBggrBgEFBQcBAQSBmTCBljA0BggrBgEFBQcwAYYoaHR0cDovL29jc3AtcGlsb3QuaW1wcmVuc2FvZmljaWFsLmNvbS5icjBeBggrBgEFBQcwAoZSaHR0cDovL2Fjc2F0LXRlc3RlLmltcHJlbnNhb2ZpY2lhbC5jb20uYnIvcmVwb3NpdG9yaW8vY2VydGlmaWNhZG9zL2Fjc2F0LXRlc3RlLnA3YzATBgNVHSUEDDAKBggrBgEFBQcDAjAJBgNVHRMEAjAAMCQGA1UdEQQdMBugGQYFYEwBAwOgEAQOODIzNzMwNzcwMDAxNzEwHwYDVR0jBBgwFoAUjjlBAFzyuAXaqG2YuQFGbW5j3wIwDQYJKoZIhvcNAQELBQADggIBALJpmaoSnPjBofrH5oQn1/wdBdCz8BYXYJ8uDffUbmDeNmkK0zodG8JnFNT8KR4lMmjfOq8L01FKQBm9gpqOXjYFuvHrs4qR3rHAVCYQGvTdolATmaC4EJcBoiJAPa60Qlu9Yf8wI+CJq2Nxyy43AkbgTp2Y3LNwmEatT2O3uth7PIIql1Vdiuj1mXwG5wVBfVOWvqNi7scqxNylh8UVic8ia3Y8FM+zDvFubqJhUb0U2YKPBJtpT0p+DRJTKvxCG41UFFnRo+XVyFwTAwaAkDPVqn71Cru5jYnvg2MHclBe0gifFnRQXyFZdx3y87lUQy6LhMS5nAF3CE4hbVmzcIEdl6e2i03+1Zwfd0luqs8tAZbzxDGBmobDMqG5bn2MB4leMvWMeN7rRwQDdc9P+JJtS8sDsLjMjIyoMV7RdtEntIV+Fr4tevAViQFdIJw299KYxzzfHzkX/vrDVakF4PLmP2VG4BcmVyd29zNpXNca/5s+1zj5XJ2rHJSGz1dJ6JWdIJC15EwOhmaxdD790dEn/4/G6T4/8cQg5YefNPTTOeayC4ZlbPRclLLTu+3oBcaOLu8vM2Kj/5zMEXtpsjmV5kdHw1sl6//Fac0PcTSV4cKQvJ7I9TXrXnZBKgFdQr0j7WlgrM/C+1SIigPGs1645wEkxi1G1KQvlDayKd29</X509Certificate></X509Data></KeyInfo></Signature></CFe>
+<CFe>
+	<infCFe Id="CFe35160282373077000171599000039140003427198508" versao="0.06" versaoDadosEnt="00.06" versaoSB="010100">
+		<ide>
+			<cUF>35</cUF>
+			<cNF>719850</cNF>
+			<mod>59</mod>
+			<nserieSAT>900003914</nserieSAT>
+			<nCFe>000342</nCFe>
+			<dEmi>20160215</dEmi>
+			<hEmi>114430</hEmi>
+			<cDV>8</cDV>
+			<tpAmb>2</tpAmb>
+			<CNPJ>16716114000172</CNPJ>
+			<signAC>SGR-SAT SISTEMA DE GESTAO E RETAGUARDA DO SAT</signAC>
+			<assinaturaQRCODE>APrPAmzIkjhMSpv9nVK7ZulhhPlVRgGWqfSf+2b2KkbFBSvPXfAlDMln5v1/MN2XlDGvzyVoHSWtGyzXpZ+FDYnm4N/Pnz2arP/lhiO27/lhqN7mGDcClVK9i7HXI0JLArfnCz662YmRh5akFALo3TfNF/HmqMydnq8Rrl++lU0FOHgJ0srYepUoEg2JLj0ZVQlV0g30I8wAfIOIAnlcfyLD7wpBGczb8HAXpdN252OFZQSS2LXXp0d/bcgt+EEQrKoNBGG3u1G0s0oDOov+42hnOu8KIxZd2aJcK04wRU9sg/Hn7XevphCHA8QJq5bGQ39z8RhU+HcNrOeFeiLhVw==</assinaturaQRCODE>
+			<numeroCaixa>003</numeroCaixa>
+		</ide>
+		<emit>
+			<CNPJ>82373077000171</CNPJ>
+			<xNome>BEMATECH S.A</xNome>
+			<enderEmit>
+				<xLgr>RUI BARBOSA</xLgr>
+				<nro>2529</nro>
+				<xCpl>: MODULOS 06 07 E 08;</xCpl>
+				<xBairro>IPE</xBairro>
+				<xMun>SAO JOSE DOS PINHAIS</xMun>
+				<CEP>83055320</CEP>
+			</enderEmit>
+			<IE>111111111111</IE>
+			<cRegTrib>1</cRegTrib>
+			<indRatISSQN>S</indRatISSQN>
+		</emit>
+		<dest>
+			<CPF>80871740540</CPF>
+		</dest>
+		<det nItem="1">
+			<prod>
+				<cProd>1234567890</cProd>
+				<xProd>AGUA MINERAL SEM GAS - COPO 200 ML</xProd>
+				<NCM>22011000</NCM>
+				<CFOP>5102</CFOP>
+				<uCom>UN</uCom>
+				<qCom>1.0000</qCom>
+				<vUnCom>1.00</vUnCom>
+				<vProd>1.00</vProd>
+				<indRegra>A</indRegra>
+				<vDesc>0.00</vDesc>
+				<vOutro>0.00</vOutro>
+				<vItem>1.00</vItem>
+			</prod>
+			<imposto>
+				<vItem12741>0.42</vItem12741>
+				<ICMS>
+					<ICMS00>
+						<Orig>0</Orig>
+						<CST>00</CST>
+						<pICMS>0.00</pICMS>
+						<vICMS>0.00</vICMS>
+					</ICMS00>
+				</ICMS>
+				<PIS>
+					<PISNT>
+						<CST>04</CST>
+					</PISNT>
+				</PIS>
+				<COFINS>
+					<COFINSNT>
+						<CST>04</CST>
+					</COFINSNT>
+				</COFINS>
+			</imposto>
+		</det>
+		<total>
+			<ICMSTot>
+				<vICMS>0.00</vICMS>
+				<vProd>1.00</vProd>
+				<vDesc>0.00</vDesc>
+				<vPIS>0.00</vPIS>
+				<vCOFINS>0.00</vCOFINS>
+				<vPISST>0.00</vPISST>
+				<vCOFINSST>0.00</vCOFINSST>
+				<vOutro>0.00</vOutro>
+			</ICMSTot>
+			<vCFe>1.00</vCFe>
+			<vCFeLei12741>0.80</vCFeLei12741>
+		</total>
+		<pgto>
+			<MP><cMP>01</cMP>
+				<vMP>50.00</vMP>
+			</MP>
+			<vTroco>49.00</vTroco>
+		</pgto>
+		<infAdic>
+			<infCpl>Obrigado, volte sempre!</infCpl>
+			<obsFisco xCampo="xCampo1">
+				<xTexto>xTexto1</xTexto>
+			</obsFisco>
+		</infAdic>
+	</infCFe>
+	<Signature xmlns="http://www.w3.org/2000/09/xmldsig#">
+		<SignedInfo xmlns="http://www.w3.org/2000/09/xmldsig#">
+			<CanonicalizationMethod Algorithm="http://www.w3.org/TR/2001/REC-xml-c14n-20010315"/>
+			<SignatureMethod Algorithm="http://www.w3.org/2001/04/xmldsig-more#rsa-sha256"/>
+			<Reference URI="#CFe35160282373077000171599000039140003427198508">
+				<Transforms>
+					<Transform Algorithm="http://www.w3.org/2000/09/xmldsig#enveloped-signature"/>
+					<Transform Algorithm="http://www.w3.org/TR/2001/REC-xml-c14n-20010315"/>
+				</Transforms>
+				<DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256"/>
+				<DigestValue>S//EhiE51uiPEz4Bt0UYmnmrg2zps6nowgr7WeOyQBs=</DigestValue>
+			</Reference>
+		</SignedInfo>
+		<SignatureValue>VE5ku01GBc88DwBBisQsCZIKwhz87qUHrOxV++pr/xoKcB/KrvyYyWxYldTWxRwah3+ESX4Ji4jgB8p6xlzksNeOZqU26xaErEhjtjQ9dan3RUNcucQmYS/tAWLOY8J6ePvsKxBB6452Ucredi2rEuWwXbKmb+DPlmYLZe0L3BQ5adm+E53wdC6nvPMUK/w+G/SPjagDQ0OHnLiMovYZnGCce7WvV+ShfR9kHW3Po1RodLwx3BHV8/Lmvp55HY6rlM3oEErKUM+d2KjZ7g6Zl20XNywGMcI2zeg4DZRxiKvDoLA2k2f2LwjCMqHPMfrd8harhjYBu7ER+sdZxqTGyA==</SignatureValue>
+		<KeyInfo>
+			<X509Data>
+				<X509Certificate>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</X509Certificate>
+			</X509Data>
+		</KeyInfo>
+	</Signature>
+</CFe>

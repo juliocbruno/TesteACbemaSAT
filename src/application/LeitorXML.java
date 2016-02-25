@@ -2,6 +2,7 @@ package application;
 
 import java.io.IOException;
 import java.util.List;
+import javax.comm.*;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -15,25 +16,50 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
+
 public class LeitorXML {
 	
+	MP2032 mp2032 = MP2032.instance;
 	static Logger log = Logger.getLogger(LeitorXML.class);
+	int iRetorno;
+
+	NodeList listaNome;
+	Node nome;
 	
-public void LeituraXml(String  arquivoXml) throws SAXException, IOException, ParserConfigurationException {
+	
+	public void LeituraXml(String arquivoXml) throws SAXException, IOException, ParserConfigurationException {
+		
+		int ModeloImpressora = 7;
+		iRetorno = mp2032.ConfiguraModeloImpressora(ModeloImpressora);
+		if (iRetorno==1) {
+			log.info("Impressora encontrada, modelo "+ModeloImpressora);
+		}else {
+			log.info("Impressora não encontrada!");			
+		}
+		String Porta = "COM10";
+		iRetorno = mp2032.IniciaPorta(Porta);
+		log.info("Retorno: "+iRetorno);
+		if (iRetorno==1) {
+			log.info("Porta "+Porta+" iniciada com sucesso!");
+		}else {
+			log.info("Não foi possivel abrir a porta!");
+		}		
 		
 		//fazer o parse do arquivo e criar o documento XML
-		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();		
+		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 		DocumentBuilder db = dbf.newDocumentBuilder();
 		Document doc = db.parse(arquivoXml);
 		
 		//Passo 1: obter o elemento raiz
 		Element raiz = doc.getDocumentElement();
-		log.info("O elemento raiz é: "+raiz.getNodeName());				
+		//log.info("O elemento raiz é: "+raiz.getNodeName());				
 		
 		//Passo 2: obter nome do emitente
-		NodeList listaNome = raiz.getElementsByTagName("xNome");
-		Node nome = listaNome.item(0).getFirstChild();
-		log.info("Nome: " + nome.getNodeValue());
+		listaNome = raiz.getElementsByTagName("xNome");
+		nome = listaNome.item(0).getFirstChild();
+		log.info("Nome: " + nome.getNodeValue());						
 		
 		//Passo 3: obter endereço do emitente	
 		NodeList listaRua = raiz.getElementsByTagName("xLgr");
@@ -57,7 +83,7 @@ public void LeituraXml(String  arquivoXml) throws SAXException, IOException, Par
 		log.info("Endereço: " + rua.getNodeValue()+", "+num.getNodeValue()+" "
 		+compl.getNodeValue()+" "+bairro.getNodeValue()+" "+cidade.getNodeValue()+" CEP: "+
 		cep.getNodeValue());
-		
+				
 		//Passo 4: obter ie e cnpj o emitente
 		//obter cnpj do emitente
 		NodeList ListaCnpj = raiz.getElementsByTagName("CNPJ");
@@ -67,16 +93,15 @@ public void LeituraXml(String  arquivoXml) throws SAXException, IOException, Par
 		Node ie = listaIe.item(0).getFirstChild();
 		
 		log.info("CNPJ: " + cnpj.getNodeValue()+" IE: "+ie.getNodeValue());
-		
+				
 		//Passo 5: obter cpf do destinatário
-		NodeList listaCpf = raiz.getElementsByTagName("CPF");
-		if (listaCpf==null) {
-			Node cpf=null;
-			return;
-		}
-		Node cpf = listaCpf.item(0).getFirstChild();
+		/*NodeList listaCpf = raiz.getElementsByTagName("CPF");
+		if (listaCpf!=null) {
+			Node cpf = listaCpf.item(0).getFirstChild();
+			log.info("CPF/CNPJ do consumidor: "+cpf.getNodeValue());
+		}		
 		
-		log.info("CPF/CNPJ do consumidor: "+cpf.getNodeValue());
+		Node cpf=null*/;
 		
 		//Passo 6: obter dados da venda
 		
@@ -202,8 +227,52 @@ public void LeituraXml(String  arquivoXml) throws SAXException, IOException, Par
 		//Passo 14: obter o QR Code
 		NodeList listaAssQRCode = raiz.getElementsByTagName("assinaturaQRCODE");
 		Node assQRCode = listaAssQRCode.item(0).getFirstChild();
-		log.info("Ass. QRCode: "+assQRCode.getNodeValue());
-}
+		log.info("Ass. QRCode: "+assQRCode.getNodeValue());									
+				
+	}
+	
+	//IMPRIME CUPOM============================================================
+	
+			private void ImprimeCFe(String xml){
+			
+				String BufTras =  (char)27+(char)97+(char)1+""+nome.getNodeValue();
+
+				int TpoLtra = 2;
+				int Italic = 0;
+				int Sublin = 0;
+				int expand = 0;
+				int enfat = 1;
+				iRetorno = mp2032.FormataTX(BufTras, TpoLtra, Italic, Sublin, expand, enfat);
+				//iRetorno = mp2032.BematechTX(BufTras);
+				if (iRetorno!=1) {
+					Alert alerta = new Alert(AlertType.ERROR);
+					alerta.setContentText("Erro ao fazer a impressão do nome do emitente!");
+					log.info("Erro \""+iRetorno+"\" ao fazer a impressão");
+				}
+				log.info("Impresso nome: "+BufTras);
+				
+			}	
+	
+	
+		public static void main(String[] args){
+			
+			LeitorXML parser = new LeitorXML();
+			
+			try {
+				//parser.LeituraXml("C:\\cfe\\CFe35160200735540000113590001246230000745496827.xml");
+				parser.LeituraXml(null);
+				
+			} catch (ParserConfigurationException e) {
+				log.info("O parser não foi configurado corretamente");
+				e.printStackTrace();
+			}  catch (SAXException e) {
+				log.info("Problema ao fazer o parser");
+				e.printStackTrace();
+			} catch (IOException e) {
+				log.info("O arquivo não pode ser lido");
+				e.printStackTrace();
+			}
+		}
 		
 	
 	

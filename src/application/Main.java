@@ -3,9 +3,12 @@ package application;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.Random;
 import java.util.regex.Pattern;
 
+import javax.comm.CommPortIdentifier;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.Unmarshaller;
@@ -28,12 +31,16 @@ import org.xml.sax.SAXException;
 import com.sun.org.apache.xerces.internal.impl.dv.util.Base64;
 
 import javafx.application.Application;
+import javafx.beans.Observable;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
@@ -49,12 +56,13 @@ public class Main extends Application {
 	
 	static Logger log = Logger.getLogger(Main.class);
 
-	BemaSAT Bema = BemaSAT.instance;
-	MP2032 mp2032 = MP2032.instance;
+	BemaSAT Bema = BemaSAT.instance;	
 
 	String retorno = "";
 	static String cfe = "";
 	static String arquivoXml = "";
+	static String xmlRetornoVenda;
+	File arquivo; 
 
 	// Componentes
 	Image logo;
@@ -75,8 +83,10 @@ public class Main extends Application {
 	DocumentBuilderFactory dbf;
 	DocumentBuilder docBuilder;
 	Document doc;
+	ComboBox<String> comboBox;
+	ObservableList<String> options;
 	
-
+	
 	public void start(Stage primaryStage) {
 		
 		BasicConfigurator.configure();
@@ -97,7 +107,28 @@ public class Main extends Application {
 		}
 		
 		try {
-
+			
+		/*///PORTAS SERIAIS====================================================================================
+		
+		// captura a lista de portas disponíveis, 
+		// pelo método estético em CommPortIdentifier. 
+		Enumeration pList = CommPortIdentifier.getPortIdentifiers(); 
+		
+		// Um mapping de nomes para CommPortIdentifiers. 
+		HashMap map = new HashMap(); 
+		
+		// Procura pela porta desejada 
+		while (pList.hasMoreElements()) {         
+			CommPortIdentifier cpi = (CommPortIdentifier)pList.nextElement(); 
+			map.put(cpi.getName(), cpi);         
+			if (cpi.getPortType() == CommPortIdentifier.PORT_SERIAL) {                 
+				ObservableList<String> options = FXCollections.observableArrayList(cpi.getName());
+				final ComboBox<String> comboBox = new ComboBox(options);    
+				} 
+		}
+		
+		//===================================================================================================
+*/		
 			// Logo
 			logo = new Image("application/B_MARCA_H_POS_CMYK_150x63.png");
 			mostraLogo = new ImageView(logo);
@@ -241,69 +272,7 @@ public class Main extends Application {
 					// TODO Auto-generated method stub					
 					
 					try {
-										
-					/*String xmlVenda = "<CFe>\n"
-					+ "<infCFe versaoDadosEnt=\"00.06\">\n"
-					+ "<ide>\n"
-					+ "<CNPJ>16716114000172</CNPJ>\n"
-					+ "<signAC>SGR-SAT SISTEMA DE GESTAO E RETAGUARDA DO SAT</signAC>\n"
-					+ "<numeroCaixa>001</numeroCaixa>\n"
-					+ "</ide>\n"
-					+ "<emit>\n"
-					+ "<CNPJ>82373077000171</CNPJ>\n"
-					+ "<IE>111111111111</IE>\n"
-					+ "<indRatISSQN>S</indRatISSQN>\n"
-					+ "</emit>\n"
-					+ "<dest>\n"
-					+ "<CPF>111111111</CPF>\n"
-					+ "</dest>\n"
-					+ "<det nItem=\"1\">\n"
-					+ "<prod>\n"
-					+ "<cProd>1234567890</cProd>\n"
-					+ "<xProd>AGUA MINERAL SEM GAS - COPO 200 ML</xProd>\n"
-					+ "<NCM>22011000</NCM>\n"
-					+ "<CFOP>5403</CFOP>\n"
-					+ "<uCom>UN</uCom>\n"
-					+ "<qCom>1.0000</qCom>\n"
-					+ "<vUnCom>1.00</vUnCom>\n"
-					+ "<indRegra>A</indRegra>\n"
-					+ "<vDesc>0.00</vDesc>\n"
-					+ "<vOutro>0.00</vOutro>\n"
-					+ "</prod>\n"
-					+ "<imposto>\n"
-					+ "<vItem12741>0.00</vItem12741>\n"
-					+ "<ICMS>\n"
-					+ "<ICMS40>\n"
-					+ "<Orig>0</Orig>\n"
-					+ "<CST>60</CST>\n"
-					+ "</ICMS40>\n"
-					+ "</ICMS>\n"
-					+ "<PIS>\n"
-					+ "<PISNT>\n"
-					+ "<CST>04</CST>\n"
-					+ "</PISNT>\n"
-					+ "</PIS>\n"
-					+ "<COFINS>\n"
-					+ "<COFINSNT>\n"
-					+ "<CST>04</CST>\n"
-					+ "</COFINSNT>\n"
-					+ "</COFINS>\n"
-					+ "</imposto>\n"
-					+ "</det>\n"
-					+ "<total>\n"
-					+ "<vCFeLei12741>0.00</vCFeLei12741>\n"
-					+ "</total>\n"
-					+ "<pgto>\n"
-					+ "<MP>\n"
-					+ "<cMP>01</cMP>\n"
-					+ "<vMP>10.00</vMP>\n"
-					+ "</MP>\n"
-					+ "</pgto>\n"
-					+ "<infAdic>\n"
-					+ "<infCpl>Obrigado, volte sempre</infCpl>\n"
-					+ "</infAdic>\n"
-					+ "</infCFe>\n"
-					+ "</CFe>\n";*/
+															
 						String xmlVenda = "<CFe> <infCFe versaoDadosEnt=\"00.06\"> <ide> <CNPJ>16716114000172</CNPJ> <signAC>SGR-SAT SISTEMA DE GESTAO E RETAGUARDA DO SAT</signAC> <numeroCaixa>001</numeroCaixa> </ide> <emit> <CNPJ>82373077000171</CNPJ> <IE>111111111111</IE> <indRatISSQN>S</indRatISSQN> </emit> <dest> <CPF></CPF> </dest> <det nItem=\"1\"> <prod> <cProd>1234567890</cProd> <xProd>AGUA MINERAL SEM GAS - COPO 200 ML</xProd> <NCM>22011000</NCM> <CFOP>5403</CFOP> <uCom>UN</uCom> <qCom>1.0000</qCom> <vUnCom>1.00</vUnCom> <indRegra>A</indRegra> <vDesc>0.00</vDesc> <vOutro>0.00</vOutro> </prod> <imposto> <vItem12741>0.00</vItem12741> <ICMS> <ICMS40> <Orig>0</Orig> <CST>60</CST> </ICMS40> </ICMS> <PIS> <PISNT> <CST>04</CST> </PISNT> </PIS> <COFINS> <COFINSNT> <CST>04</CST> </COFINSNT> </COFINS> </imposto> </det> <total> <vCFeLei12741>0.00</vCFeLei12741> </total> <pgto> <MP> <cMP>01</cMP> <vMP>10.00</vMP> </MP> </pgto> <infAdic> <infCpl>Obrigado, volte sempre</infCpl> </infAdic> </infCFe> </CFe>";
 							int sessao = gerador.nextInt(999)*100;
 							log.info("Inicia a execução da função EnviarDadosVenda");
@@ -356,7 +325,8 @@ public class Main extends Application {
 		
 							TfChaveAcesso.setText(retornoStr[8]);
 							//Decodificando retorno Base64
-							String xmlRetornoVenda = retornoStr[6];
+							
+							xmlRetornoVenda = retornoStr[6];
 							log.info("Decodificando arquivo de retorno");
 							byte[] decodeBytes = Base64.decode(xmlRetornoVenda);
 							try {
@@ -368,19 +338,14 @@ public class Main extends Application {
 								log.info("");
 							
 							//Criando arquivo xml de retorno
-							 File arquivo;  
+							 
 							 
 							//Cria o arquivo xml com a chave de acesso no C:\
 							cfe = retornoStr[8];
-				            arquivo = new File("C:\\APPBEMASAT\\"+retornoStr[8]+".xml");  
+				            arquivo = new File("C:\\APPBEMASAT\\"+cfe+".xml");  
 				            log.info("Criando o arquivo: "+arquivo.toString());
 				            FileOutputStream fos = new FileOutputStream(arquivo); 
-				            fos.write(decoded.getBytes());
-				            
-				            LeitorXML leitorXml = new LeitorXML();
-							leitorXml.LeituraXml(arquivo.getName());
-				            
-				            //Montando a impressão				           				            
+				            fos.write(decoded.getBytes());				            				            				           			           				            
 				            
 							} catch (IOException e) {
 								log.error("Erro de IOException na decodificação do retorno: ",e);									
@@ -395,10 +360,61 @@ public class Main extends Application {
 				}	
 				
 			});
+            
+            //Botão imprimir venda-----------------------------------------------------------
+            
+            BtImprimirVenda = new Button("Imprimir Cupom");
+            BtImprimirVenda.setOnAction(new EventHandler<ActionEvent>() {
+
+				@Override
+				public void handle(ActionEvent event) {
+					
+					LeitorXML leitorXml = new LeitorXML();
+					try {
+						
+						leitorXml.LeituraXml(arquivo.toString());
+						log.info(arquivo.toString());
+					} catch (SAXException e) {
+						log.info(e);
+						e.printStackTrace();
+					} catch (IOException e) {
+						log.info(e);
+						e.printStackTrace();
+					} catch (ParserConfigurationException e) {
+						log.info(e);
+						e.printStackTrace();
+					}
+
+					/*LeitorXML parser = new LeitorXML();
+					log.info("Parse: "+ parser);
+					
+					try {						
+						parser.LeituraXml(xmlRetornoVenda);
+						if (parser!=null) {
+							log.info("leitura do XML realizada com sucesso");
+						}else {
+							log.info("Erro de leitura do parse xml");
+						}					
+				} catch (ParserConfigurationException e) {
+					log.info("O parser não foi configurado corretamente");
+					log.fatal(e);
+				}  catch (SAXException e) {
+					log.fatal("Problema ao fazer o parser");
+					log.fatal(e);
+				} catch (IOException e) {
+					log.fatal("O arquivo não pode ser lido");
+					log.fatal(e);
+				}*/
+				
+			}
+			});
 
 			// Posicionamento dos componentes no Pane=======================================
 			LbSessao.setTranslateX(20); // define orientação horizontal
 			LbSessao.setTranslateY(10); // define orientação vertical
+			
+			BtImprimirVenda.setTranslateX(20);
+			BtImprimirVenda.setTranslateY(160);
 
 			mostraLogo.setTranslateX(470);
 			mostraLogo.setTranslateY(10);
@@ -430,7 +446,7 @@ public class Main extends Application {
 
 			Pane root = new Pane();
 			root.getChildren().addAll(LbSessao, TfSessao, LbCodAtivacao,
-					tfCodAtivacao, mostraLogo, BtConsultaSAT, BtConsStatusOp, TfChaveAcesso, BtEnviarVenda);
+					tfCodAtivacao, mostraLogo, BtConsultaSAT, BtConsStatusOp, TfChaveAcesso, BtEnviarVenda, BtImprimirVenda);
 			root.getStyleClass().add("root");
 			Scene scene = new Scene(root, 650, 650);
 			scene.getStylesheets().add(
@@ -447,15 +463,16 @@ public class Main extends Application {
 	public static void main(String[] args) throws SAXParseException {
 		launch(args);	
 		
-		LeitorXML parser = new LeitorXML();
+		/*LeitorXML parser = new LeitorXML();
 		
 		try {
 			//parser.LeituraXml("C:\\cfe\\CFe35160200735540000113590001246230000745496827.xml");
-			parser.LeituraXml("c:\\APPBEMASAT\\"+cfe+".xml");
+			parser.LeituraXml(xmlRetornoVenda);
 			if (parser!=null) {
 				log.info("leitura do XML realizada com sucesso");
-			}
-			log.info("Erro de leitura do parse xml");
+			}else {
+				log.info("Erro de leitura do parse xml");
+			}			
 			
 		} catch (ParserConfigurationException e) {
 			log.info("O parser não foi configurado corretamente");
@@ -466,7 +483,7 @@ public class Main extends Application {
 		} catch (IOException e) {
 			log.fatal("O arquivo não pode ser lido");
 			log.fatal(e);
-		}
+		}*/
 		
 	}
 }

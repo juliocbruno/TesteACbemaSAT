@@ -6,10 +6,15 @@ package application;
  * Objeto para fazer a impressão do extrato
  * 
  */
-public class ImprimeExtratoCFe {
+public class ConteudoXML {
 	
 	private String nomeEmitente;
-	private String enderecoEmitente;
+	private String logradouroEmit;
+	private String numeroEmit;
+	private String complEmit;
+	private String bairroEmit;
+	private String MunEmit;
+	private String CEPEmit;
 	private String cnpjEmitente;
 	private String ieEmitente;
 	private String cnpjConsumidor;
@@ -18,6 +23,7 @@ public class ImprimeExtratoCFe {
 	private String qtdProd;
 	private String undProd;
 	private String valorUntProd;
+	private String valorItem;
 	private String valorTribProd;
 	private String valorTotalProd;
 	private String TotalBrutoItem;
@@ -32,17 +38,52 @@ public class ImprimeExtratoCFe {
 	private String dataHora;
 	private String chaveAcesso;
 	private String QRCode;
+	
+	private String nomeArquivo;
+	
+	//Getters and Setters============================================
+	
 	public String getNomeEmitente() {
 		return nomeEmitente;
 	}
 	public void setNomeEmitente(String nomeEmitente) {
 		this.nomeEmitente = nomeEmitente;
 	}
-	public String getEnderecoEmitente() {
-		return enderecoEmitente;
+	public String getLogradouroEmit() {
+		return logradouroEmit;
 	}
-	public void setEnderecoEmitente(String enderecoEmitente) {
-		this.enderecoEmitente = enderecoEmitente;
+	public void setLogradouroEmit(String logradouroEmit) {
+		this.logradouroEmit = logradouroEmit;
+	}
+	public String getNumeroEmit() {
+		return numeroEmit;
+	}
+	public void setNumeroEmit(String numeroEmit) {
+		this.numeroEmit = numeroEmit;
+	}
+	public String getComplEmit() {
+		return complEmit;
+	}
+	public void setComplEmit(String complEmit) {
+		this.complEmit = complEmit;
+	}
+	public String getBairroEmit() {
+		return bairroEmit;
+	}
+	public void setBairroEmit(String bairroEmit) {
+		this.bairroEmit = bairroEmit;
+	}
+	public String getMunEmit() {
+		return MunEmit;
+	}
+	public void setMunEmit(String munEmit) {
+		MunEmit = munEmit;
+	}
+	public String getCEPEmit() {
+		return CEPEmit;
+	}
+	public void setCEPEmit(String cEPEmit) {
+		CEPEmit = cEPEmit;
 	}
 	public String getCnpjEmitente() {
 		return cnpjEmitente;
@@ -176,5 +217,16 @@ public class ImprimeExtratoCFe {
 	public void setQRCode(String qRCode) {
 		QRCode = qRCode;
 	}
-	
+	public String getNomeArquivo() {
+		return nomeArquivo;
+	}
+	public void setNomeArquivo(String nomeArquivo) {
+		this.nomeArquivo = nomeArquivo;
+	}
+	public String getValorItem() {
+		return valorItem;
+	}
+	public void setValorItem(String valorItem) {
+		this.valorItem = valorItem;
+	}
 }
