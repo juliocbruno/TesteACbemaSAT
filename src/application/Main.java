@@ -5,6 +5,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Random;
 import java.util.regex.Pattern;
 
@@ -62,7 +63,7 @@ public class Main extends Application {
 	static String cfe = "";
 	static String arquivoXml = "";
 	static String xmlRetornoVenda;
-	File arquivo; 
+	static File arquivo; 
 
 	// Componentes
 	Image logo;
@@ -369,7 +370,26 @@ public class Main extends Application {
 				@Override
 				public void handle(ActionEvent event) {
 					
-					LeitorXML leitorXml = new LeitorXML();
+					ImprimeCFe parserImprimeCFe = new ImprimeCFe();
+					
+					try {
+						List<ConteudoXML> conteudo = parserImprimeCFe.leituraXML(arquivo.toString());
+						for (ConteudoXML conteudoXML: conteudo){
+							System.out.println(conteudoXML);
+							log.info(conteudoXML);			}
+						
+					} catch (ParserConfigurationException e) {
+						log.error(e);
+						e.printStackTrace();
+					} catch (SAXException e) {
+						log.error(e);
+						e.printStackTrace();
+					} catch (IOException e) {
+						log.error(e);
+						e.printStackTrace();
+					}
+					
+					/*LeitorXML leitorXml = new LeitorXML();
 					try {
 						
 						leitorXml.LeituraXml(arquivo.toString());
@@ -383,29 +403,8 @@ public class Main extends Application {
 					} catch (ParserConfigurationException e) {
 						log.info(e);
 						e.printStackTrace();
-					}
-
-					/*LeitorXML parser = new LeitorXML();
-					log.info("Parse: "+ parser);
-					
-					try {						
-						parser.LeituraXml(xmlRetornoVenda);
-						if (parser!=null) {
-							log.info("leitura do XML realizada com sucesso");
-						}else {
-							log.info("Erro de leitura do parse xml");
-						}					
-				} catch (ParserConfigurationException e) {
-					log.info("O parser não foi configurado corretamente");
-					log.fatal(e);
-				}  catch (SAXException e) {
-					log.fatal("Problema ao fazer o parser");
-					log.fatal(e);
-				} catch (IOException e) {
-					log.fatal("O arquivo não pode ser lido");
-					log.fatal(e);
-				}*/
-				
+					}*/
+								
 			}
 			});
 
@@ -460,8 +459,11 @@ public class Main extends Application {
 	
 }
 	
-	public static void main(String[] args) throws SAXParseException {
-		launch(args);	
+	public static void main(String[] args) throws SAXParseException, SAXException, IOException {
+		launch(args);
+		
+		
+
 		
 		/*LeitorXML parser = new LeitorXML();
 		

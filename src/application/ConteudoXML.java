@@ -29,7 +29,6 @@ public class ConteudoXML {
 	private String TotalBrutoItem;
 	private String descAcrescItem;
 	private String totalCupom;
-	private String pagamento;
 	private String troco;
 	private String xTexto;
 	private String textoContrib;
@@ -38,6 +37,9 @@ public class ConteudoXML {
 	private String dataHora;
 	private String chaveAcesso;
 	private String QRCode;
+	private String codMeioPag;
+	private String valorMeioPag;	
+	private String infoCompl;
 	
 	private String nomeArquivo;
 	
@@ -163,12 +165,6 @@ public class ConteudoXML {
 	public void setTotalCupom(String totalCupom) {
 		this.totalCupom = totalCupom;
 	}
-	public String getPagamento() {
-		return pagamento;
-	}
-	public void setPagamento(String pagamento) {
-		this.pagamento = pagamento;
-	}
 	public String getTroco() {
 		return troco;
 	}
@@ -229,4 +225,23 @@ public class ConteudoXML {
 	public void setValorItem(String valorItem) {
 		this.valorItem = valorItem;
 	}
+	public String getCodMeioPag() {
+		return codMeioPag;
+	}
+	public void setCodMeioPag(String codMeioPag) {
+		this.codMeioPag = codMeioPag;
+	}
+	public String getValorMeioPag() {
+		return valorMeioPag;
+	}
+	public void setValorMeioPag(String valorMeioPag) {
+		this.valorMeioPag = valorMeioPag;
+	}
+	public String getInfoCompl() {
+		return infoCompl;
+	}
+	public void setInfoCompl(String infoCompl) {
+		this.infoCompl = infoCompl;
+	}
+	
 }
