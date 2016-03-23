@@ -1,51 +1,82 @@
 package application;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.Reader;
+import java.io.UnsupportedEncodingException;
+import java.lang.reflect.InvocationTargetException;
+import java.nio.charset.Charset;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Enumeration;
+import java.util.List;
+import java.util.Optional;
 import java.util.Random;
 import java.util.regex.Pattern;
 
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBElement;
-import javax.xml.bind.Unmarshaller;
+import javax.comm.*;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Logger;
-import org.apache.log4j.PatternLayout;
 import org.apache.log4j.PropertyConfigurator;
-import org.apache.log4j.RollingFileAppender;
+import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
 
 import com.sun.org.apache.xerces.internal.impl.dv.util.Base64;
+import com.thoughtworks.xstream.XStream;
 
 import javafx.application.Application;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
+import javafx.scene.control.Separator;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
+import javafx.scene.control.TextInputDialog;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
+import javafx.stage.DirectoryChooser;
+import javafx.stage.FileChooser;
+import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Stage;
 
 public class Main extends Application {
-	
-	Logger log = Logger.getLogger(Main.class);
+
+	static Logger log = Logger.getLogger(Main.class);
 
 	BemaSAT Bema = BemaSAT.instance;
 	MP2032 mp2032 = MP2032.instance;
 
-	String retorno = "";
+	String retorno;
+	int iRetorno;
+	static String cfe = "";
+	static String arquivoXml = "";
+	static String xmlRetornoVenda;
+	static File arquivo;
+	int sessao;
 
 	// Componentes
 	Image logo;
@@ -56,272 +87,282 @@ public class Main extends Application {
 	Label LbCodAtivacao;
 	TextField tfCodAtivacao;
 	Random gerador;
+	Button AbrePrograma;
 	Button BtConsultaSAT;
 	Button BtConsStatusOp;
 	Button BtEnviarVenda;
 	TextField TfChaveAcesso;
 	Button BtImprimirVenda;
 	String retornoStr[];
-	
+
+	Button localImpressora;
+	Label TxCombo;
+	ComboBox<String> CbModelo;
+	Label TxPorta;
+	TextField TfPorta;
+
 	DocumentBuilderFactory dbf;
 	DocumentBuilder docBuilder;
 	Document doc;
-	
+	Node cod;
+	Node descri;
+	Node ncm;
+	Node cfop;
+	Node un;
+	Node qtde;
+	Node valorUn;
+	Node aliq;
+	Node valorItem;
+	Node indRegra;
+	Node indDesc;
+	Node outro;
+	Attr id;
 
-	public void start(Stage primaryStage) {
-		
+	String serie;
+	String xmlVenda;
+	String xml;
+
+	public void start(Stage primaryStage) throws NullPointerException {
+
 		BasicConfigurator.configure();
 		PropertyConfigurator.configure("lib/log4j.properties");
-		log.info("=============================================================================================================================================");
-		log.info("Inicio da aplicaÃ§Ã£o de Teste com a BemaSAT32");
+		log.info(
+				"=============================================================================================================================================");
+		log.info("Inicio da aplicação de Teste com a BemaSAT32");
 		log.info("Desenvolvido por Julio Cesar Bruno - Bematech Software Partners");
-		
-		
+
 		gerador = new Random();
-		
-		try {
 
-			// Logo
-			logo = new Image("application/B_MARCA_H_POS_CMYK_150x63.png");
-			mostraLogo = new ImageView(logo);
-			
-			TfChaveAcesso = new TextField();
-			TfChaveAcesso.setPromptText("Chave de acesso do CF-e");
-			TfChaveAcesso.setEditable(false);
+		File dirTesteACBemaSAT = new File("C:\\APPBEMASAT");
+		if (dirTesteACBemaSAT.mkdir()) {
 
-			// Campo texto para nÃºmero da sessÃ£o (nÃ£o editÃ¡vel)
-			LbSessao = new Label("NÃºmero da SessÃ£o: ");
-			TfSessao = new TextField();
-			TfSessao.setEditable(false);
-			TfSessao.setMaxWidth(60);
-			TfSessao.getStyleClass().add("TfSessao");
+			log.info("Pasta " + dirTesteACBemaSAT.getName() + " criada com sucesso!");
+		} else {
+			log.info("Não foi possível criar o diretório " + dirTesteACBemaSAT.getName() + " ou ele já existe.");
+		}
 
-			// Capo texto para o cÃ³digo de ativaÃ§Ã£o
-			LbCodAtivacao = new Label("CÃ³digo de AtivaÃ§Ã£o");
-			tfCodAtivacao = new TextField("bema1234");
-			tfCodAtivacao.setMaxWidth(100);
+		// Consultar o SAT antes de iniciar o programa
 
-			// ConsultaSAT-------------------------------------------------------------------------------
-			BtConsultaSAT = new Button("Consultar SAT");
-			BtConsultaSAT.setOnAction(new EventHandler<ActionEvent>() {
+		/*
+		 * try { sessao = gerador.nextInt(999) * 100; retorno =
+		 * Bema.ConsultarSAT(sessao); Alert alerta = new
+		 * Alert(AlertType.INFORMATION); alerta.setTitle("Status SAT"); //
+		 * alerta.setContentText("Mensagem de Retorno: " + retornoStr[2]);
+		 * alerta.setContentText(retorno); alerta.showAndWait();
+		 * 
+		 * } catch (ArrayIndexOutOfBoundsException e) { log.info(
+		 * "ConsultarSAT: " + e); e.printStackTrace(); Alert alerta = new
+		 * Alert(AlertType.ERROR); alerta.setTitle("Status SAT");
+		 * alerta.setContentText(retorno); alerta.showAndWait();
+		 * 
+		 * } catch (RuntimeException e) { e.printStackTrace(); Alert alerta =
+		 * new Alert(AlertType.ERROR); alerta.setTitle("Status SAT");
+		 * alerta.setContentText(e.toString()); alerta.showAndWait(); }
+		 */
 
-				public void handle(ActionEvent event) {
-					// TODO ConsultaSAT
+		TextInputDialog codAtivacao = new TextInputDialog("900006420");
+		codAtivacao.setTitle("Teste BemaSAT");
+		codAtivacao.setHeaderText("Insira as informações");
+		codAtivacao.setContentText("Número de série do SAT sem o digito:");
 
-					// gera nÃºmero da sessÃ£o com 5 digitos
-					int sessao = gerador.nextInt(999)*100;
-					log.info("Inicia a execuÃ§Ã£o da funÃ§Ã£o ConsultarSAT");
-					log.info("ParÃ¢metros da funÃ§Ã£o ");
-					log.info("SessÃ£o: "+sessao);
-					retorno = Bema.ConsultarSAT(sessao);
-					log.debug(BtConsultaSAT);
-					log.info("Retorno da ExecuÃ§Ã£o");
-					log.info(retorno);
-					log.info("Fim da execuÃ§Ã£o da FunÃ§Ã£o ConsultarSAT");
-					log.info("");
-					String retornoStr[] = retorno.split(Pattern.quote("|"));
-					
-					TfSessao.setText(Integer.toString(sessao));
-					Alert AlRetorno = new Alert(AlertType.INFORMATION);
-					
-					AlRetorno.setTitle("Retorno do S@T");
-					AlRetorno.setHeaderText("Retorno da FunÃ§Ã£o ConsultaSAT");
-					
-					AlRetorno.setContentText("NÃºmero de SessÃ£o: "+retornoStr[0] + "\n" +"CÃ³digo de Retorno: "+retornoStr[1] + "\n" +
-							"Mensagem de Retorno: "+retornoStr[2]);
-					AlRetorno.showAndWait();
+		// Traditional way to get the response value.
+		Optional<String> result = codAtivacao.showAndWait();
+		if (result.isPresent()) {
 
-				}
-			});
+			try {
 
-			// ConsultaStatusOperacional--------------------------------------------------------------
-			BtConsStatusOp = new Button("Consultar Status Operacional");
-			BtConsStatusOp.setOnAction(new EventHandler<ActionEvent>() {
+				/*
+				 * Enumeration comLista =
+				 * CommPortIdentifier.getPortIdentifiers(); CommPortIdentifier
+				 * cpi = (CommPortIdentifier)comLista.nextElement();
+				 * 
+				 * ObservableList lista = FXCollections.observableArrayList();
+				 * 
+				 * 
+				 * //lista.add(e);
+				 * 
+				 * ComboBox<String> combo = new ComboBox<String>(); String
+				 * portas; for (int i = 0; i < retornoStr.length; i++) {
+				 * 
+				 * } combo.getItems().add(portas);
+				 */
 
-				public void handle(ActionEvent event) {
-					// TODO ConsultaStatusOperacional
+				TxCombo = new Label("Selecione o modelo da impressora: ");
+				ObservableList<String> options = FXCollections.observableArrayList("MP-2500 TH", "MP-4200 TH",
+						"MP-100S TH");
+				CbModelo = new ComboBox<String>(options);
+				CbModelo.setValue("MP-4200 TH");
+				TxPorta = new Label("Selecione a porta: ");
+				TfPorta = new TextField("COM4");
 
-					// gera nï¿½mero da sessï¿½o com 5 digitos
-					int sessao = gerador.nextInt(999) * 100;
-					log.info("Inicia a execuÃ§Ã£o da funÃ§Ã£o ConsultarStatusOperacional");
-					log.info("ParÃ¢metros da funÃ§Ã£o ");
-					log.info("SessÃ£o: "+sessao);
-					log.info("CÃ³digo de ativaÃ§Ã£o: "+tfCodAtivacao.getText());					
-					retorno = Bema.ConsultarStatusOperacional(sessao,
-							tfCodAtivacao.getText());					
-					String retornoStr[] = retorno.split(Pattern.quote("|"));
-					log.info(retornoStr[1]);
-					TfSessao.setText(Integer.toString(sessao));					
-					Alert AlRetorno = new Alert(AlertType.INFORMATION);
-					AlRetorno.setWidth(550);
-					AlRetorno.setTitle("Retorno do S@T");
-					AlRetorno
-							.setHeaderText("Retorno da FunÃ§Ã£o ConsultarStatusOperacional");
-					AlRetorno.setContentText("Mensagem de Retorno: " + retornoStr[2]);
-					TextArea textArea = new TextArea();
-					textArea.setEditable(false);
-					textArea.setWrapText(true);
-					textArea.setText("NÃºmero de SessÃ£o: "
-							+ retornoStr[0] + "\n" + "CÃ³digo de Retorno: "
-							+ retornoStr[1] + "\n" + "Mensagem de Retorno: "
-							+ retornoStr[2] + "\n" + "CÃ³digo Mensagem SEFAZ:  "
-							+ retornoStr[3] + "\n" + "Mensagem da Sefaz: "
-							+ retornoStr[4] + "\n" + "NÃºmero de SÃ©rie: "
-							+ retornoStr[5] + "\n" + "Tipo da Lan: "
-							+ retornoStr[6] + "\n" + "IP: " + retornoStr[7]
-							+ "\n" + "Mac Address: " + retornoStr[8] + "\n"
-							+ "MÃ¡scara de Rede: " + retornoStr[9] + "\n"
-							+ "Gateway: " + retornoStr[10] + "\n"
-							+ "DNS PrimÃ¡rio: " + retornoStr[11] + "\n"
-							+ "DNS SecundÃ¡rio: " + retornoStr[12] + "\n"
-							+ "Status da Lan: " + retornoStr[13] + "\n"
-							+ "NÃ­vel da Bateria: " + retornoStr[14] + "\n"
-							+ "Total de MemÃ³ria: " + retornoStr[15] + "\n"
-							+ "MemÃ³ria Utilizada: " + retornoStr[16] + "\n"
-							+ "Data e Hora Atual: " + retornoStr[17] + "\n"
-							+ "VersÃ£o Software BÃ¡sico: " + retornoStr[18]
-							+ "\n" + "VersÃ£o do Layout: " + retornoStr[19]
-							+ "\n" + "Ãšltimo CF-e Enviado: " + retornoStr[20]
-							+ "\n" + "Primeiro CF-e Armazenado: "
-							+ retornoStr[21] + "\n"
-							+ "Ãšltimo CF-e Armazenado: " + retornoStr[22]
-							+ "\n" + "Ãšltima TransmissÃ£o de CF-e: "
-							+ retornoStr[23] + "\n"
-							+ "Ãšltima ComunicaÃ§Ã£o com SEFAZ: " + retornoStr[24]
-							+ "\n" + "EmissÃ£o do Certificado: "
-							+ retornoStr[25] + "\n"
-							+ "Vencimento do Certificado: " + retornoStr[26]
-							+ "\n");
+				localImpressora = new Button("Conectar Impressora");
+				localImpressora.setOnAction(new EventHandler<ActionEvent>() {
 
-					textArea.setMaxWidth(Double.MAX_VALUE);
-					textArea.setMaxHeight(Double.MAX_VALUE);
-					GridPane.setVgrow(textArea, Priority.ALWAYS);
-					GridPane.setHgrow(textArea, Priority.ALWAYS);
+					@Override
+					public void handle(ActionEvent arg0) {
+						// TODO modelos de impressora
 
-					GridPane expContent = new GridPane();
-					expContent.setMaxWidth(Double.MAX_VALUE);
-					expContent.add(textArea, 0, 0);
+						int modelo = 0;
 
-					//AlRetorno.getDialogPane().setExpandableContent(expContent);
-					AlRetorno.getDialogPane().setContent(expContent);
+						if (CbModelo.getValue() == "MP-2500 TH") {
+							modelo = 8;
+						}
+						if (CbModelo.getValue() == "MP-4200 TH") {
+							modelo = 7;
+						}
+						if (CbModelo.getValue() == "MP-100S TH") {
+							modelo = 7;
+						}
 
-					AlRetorno.showAndWait();
-					
-					log.debug(BtConsStatusOp);
-					log.info("Retorno da ExecuÃ§Ã£o: ");
-					log.info(retorno);
-					log.info("Fim da execuÃ§Ã£o da FunÃ§Ã£o ConsultarStatusOperacional");
-					log.info("");
+						iRetorno = mp2032.ConfiguraModeloImpressora(modelo);
+						if (iRetorno == 1) {
+							Alert alerta = new Alert(AlertType.INFORMATION);
+							alerta.setTitle("Retorno Impressora");
+							alerta.setContentText(
+									"Impressora modelo " + CbModelo.getValue() + " encontrada com sucesso!");
+							alerta.showAndWait();
+						} else {
+							Alert alerta = new Alert(AlertType.ERROR);
+							alerta.setTitle("Retorno Impressora");
+							alerta.setContentText("Impressora não encontrada!");
+							alerta.showAndWait();
+						}
 
-				}
-			});
-			
-			//EnviarDadosVenda
-			BtEnviarVenda = new Button("EnviarDadosVenda");
-            BtEnviarVenda.setOnAction(new EventHandler<ActionEvent>() {
-			
-				public void handle(ActionEvent event) {
-					// TODO Auto-generated method stub					
-					
-					try {
-										
-					/*String xmlVenda = "<CFe>\n"
-					+ "<infCFe versaoDadosEnt=\"00.06\">\n"
-					+ "<ide>\n"
-					+ "<CNPJ>16716114000172</CNPJ>\n"
-					+ "<signAC>SGR-SAT SISTEMA DE GESTAO E RETAGUARDA DO SAT</signAC>\n"
-					+ "<numeroCaixa>001</numeroCaixa>\n"
-					+ "</ide>\n"
-					+ "<emit>\n"
-					+ "<CNPJ>82373077000171</CNPJ>\n"
-					+ "<IE>111111111111</IE>\n"
-					+ "<indRatISSQN>S</indRatISSQN>\n"
-					+ "</emit>\n"
-					+ "<dest>\n"
-					+ "<CPF></CPF>\n"
-					+ "</dest>\n"
-					+ "<det nItem=\"1\">\n"
-					+ "<prod>\n"
-					+ "<cProd>1234567890</cProd>\n"
-					+ "<xProd>AGUA MINERAL SEM GAS - COPO 200 ML</xProd>\n"
-					+ "<NCM>22011000</NCM>\n"
-					+ "<CFOP>5403</CFOP>\n"
-					+ "<uCom>UN</uCom>\n"
-					+ "<qCom>1.0000</qCom>\n"
-					+ "<vUnCom>1.00</vUnCom>\n"
-					+ "<indRegra>A</indRegra>\n"
-					+ "<vDesc>0.00</vDesc>\n"
-					+ "<vOutro>0.00</vOutro>\n"
-					+ "</prod>\n"
-					+ "<imposto>\n"
-					+ "<vItem12741>0.00</vItem12741>\n"
-					+ "<ICMS>\n"
-					+ "<ICMS40>\n"
-					+ "<Orig>0</Orig>\n"
-					+ "<CST>60</CST>\n"
-					+ "</ICMS40>\n"
-					+ "</ICMS>\n"
-					+ "<PIS>\n"
-					+ "<PISNT>\n"
-					+ "<CST>04</CST>\n"
-					+ "</PISNT>\n"
-					+ "</PIS>\n"
-					+ "<COFINS>\n"
-					+ "<COFINSNT>\n"
-					+ "<CST>04</CST>\n"
-					+ "</COFINSNT>\n"
-					+ "</COFINS>\n"
-					+ "</imposto>\n"
-					+ "</det>\n"
-					+ "<total>\n"
-					+ "<vCFeLei12741>0.00</vCFeLei12741>\n"
-					+ "</total>\n"
-					+ "<pgto>\n"
-					+ "<MP>\n"
-					+ "<cMP>01</cMP>\n"
-					+ "<vMP>10.00</vMP>\n"
-					+ "</MP>\n"
-					+ "</pgto>\n"
-					+ "<infAdic>\n"
-					+ "<infCpl>Obrigado, volte sempre</infCpl>\n"
-					+ "</infAdic>\n"
-					+ "</infCFe>\n"
-					+ "</CFe>\n";*/
-						String xmlVenda = "<CFe> <infCFe versaoDadosEnt=\"00.06\"> <ide> <CNPJ>16716114000172</CNPJ> <signAC>SGR-SAT SISTEMA DE GESTAO E RETAGUARDA DO SAT</signAC> <numeroCaixa>001</numeroCaixa> </ide> <emit> <CNPJ>82373077000171</CNPJ> <IE>111111111111</IE> <indRatISSQN>S</indRatISSQN> </emit> <dest> <CPF></CPF> </dest> <det nItem=\"1\"> <prod> <cProd>1234567890</cProd> <xProd>AGUA MINERAL SEM GAS - COPO 200 ML</xProd> <NCM>22011000</NCM> <CFOP>5403</CFOP> <uCom>UN</uCom> <qCom>1.0000</qCom> <vUnCom>1.00</vUnCom> <indRegra>A</indRegra> <vDesc>0.00</vDesc> <vOutro>0.00</vOutro> </prod> <imposto> <vItem12741>0.00</vItem12741> <ICMS> <ICMS40> <Orig>0</Orig> <CST>60</CST> </ICMS40> </ICMS> <PIS> <PISNT> <CST>04</CST> </PISNT> </PIS> <COFINS> <COFINSNT> <CST>04</CST> </COFINSNT> </COFINS> </imposto> </det> <total> <vCFeLei12741>0.00</vCFeLei12741> </total> <pgto> <MP> <cMP>01</cMP> <vMP>10.00</vMP> </MP> </pgto> <infAdic> <infCpl>Obrigado, volte sempre</infCpl> </infAdic> </infCFe> </CFe>";
-							int sessao = gerador.nextInt(999)*100;
-							log.info("Inicia a execuÃ§Ã£o da funÃ§Ã£o EnviarDadosVenda");
-							log.info("ParÃ¢metros da funÃ§Ã£o ");
-							log.info("SessÃ£o: "+sessao);
-							log.info("CÃ³digo de ativaÃ§Ã£o: "+tfCodAtivacao.getText());
-							log.info("XML de venda: "+xmlVenda);
-							retorno = Bema.EnviarDadosVenda(sessao, tfCodAtivacao.getText(), xmlVenda);
-							log.debug(BtEnviarVenda);
-							log.info("Retorno da ExecuÃ§Ã£o: ");
-							log.info(retorno);							
-							TfSessao.setText(Integer.toString(sessao));
-							
+						iRetorno = mp2032.IniciaPorta(TfPorta.getText());
+						if (iRetorno == 1) {
+							Alert alerta = new Alert(AlertType.INFORMATION);
+							alerta.setTitle("Retorno Impressora");
+							alerta.setContentText(
+									"Impressora conectada na porta " + TfPorta.getText() + " com sucesso!");
+							alerta.showAndWait();
+						} else {
+							Alert alerta = new Alert(AlertType.ERROR);
+							alerta.setTitle("Retorno Impressora");
+							alerta.setContentText("Impressora não conectada!");
+							alerta.showAndWait();
+						}
+
+					}
+				});
+
+				// Logo
+				logo = new Image("application/B_MARCA_H_POS_CMYK_150x63.png");
+				mostraLogo = new ImageView(logo);
+
+				TfChaveAcesso = new TextField();
+				TfChaveAcesso.setPromptText("Chave de acesso do CF-e");
+				TfChaveAcesso.setEditable(false);
+
+				// Campo texto para número da sessão (não editável)
+				LbSessao = new Label("Número da Sessão: ");
+				TfSessao = new TextField();
+				TfSessao.setEditable(false);
+				TfSessao.setMaxWidth(60);
+				TfSessao.getStyleClass().add("TfSessao");
+
+				// Capo texto para o código de ativação
+				LbCodAtivacao = new Label("Código de Ativação");
+				tfCodAtivacao = new TextField("bema1234");
+				tfCodAtivacao.setMaxWidth(100);
+
+				// ConsultaSAT-------------------------------------------------------------------------------
+				BtConsultaSAT = new Button("Consultar SAT");
+				BtConsultaSAT.setOnAction(new EventHandler<ActionEvent>() {
+
+					public void handle(ActionEvent event) {
+						// TODO ConsultaSAT
+
+						// gera número da sessão com 5 digitos
+						try {
+							int sessao = gerador.nextInt(999) * 100;
+							log.info("Inicia a execução da função ConsultarSAT");
+							log.info("Parâmetros da função ");
+							log.info("Sessão: " + sessao);
+							retorno = Bema.ConsultarSAT(sessao);
+							byte ptext[] = null;
+							try {
+								ptext = retorno.getBytes("UTF8");
+							} catch (UnsupportedEncodingException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
+							for (int i = 0; i < ptext.length; i++) {
+								System.out.print(ptext[i] + ",");
+							}
+							log.debug(BtConsultaSAT);
+							log.info("Retorno da Execução");
+							log.info(retorno);
+							log.info("Fim da execução da Função ConsultarSAT");
+							log.info("");
 							String retornoStr[] = retorno.split(Pattern.quote("|"));
-							
+
+							TfSessao.setText(Integer.toString(sessao));
+							Alert AlRetorno = new Alert(AlertType.INFORMATION);
+
+							AlRetorno.setTitle("Retorno do S@T");
+							AlRetorno.setHeaderText("Retorno da Função ConsultaSAT");
+
+							AlRetorno.setContentText(
+									"Número de Sessão: " + retornoStr[0] + "\n\r" + "Código de Retorno: "
+											+ retornoStr[1] + "\n\r" + "Mensagem de Retorno: " + retornoStr[2]);
+							AlRetorno.showAndWait();
+						} catch (ArrayIndexOutOfBoundsException e) {
+							log.info("ConsultarSAT: " + e);
+							e.printStackTrace();
+							Alert alerta = new Alert(AlertType.ERROR);
+							alerta.setTitle("Status SAT");
+							alerta.setContentText(retorno);
+							alerta.showAndWait();
+						}
+
+					}
+				});
+
+				// ConsultaStatusOperacional--------------------------------------------------------------
+				BtConsStatusOp = new Button("Consultar Status Operacional");
+				BtConsStatusOp.setOnAction(new EventHandler<ActionEvent>() {
+
+					public void handle(ActionEvent event) {
+						// Consulta Status operacional
+
+						try {
+							// gera numero da sessão com 5 digitos
+							int sessao = gerador.nextInt(999) * 100;
+							log.info("Inicia a execução da função ConsultarStatusOperacional");
+							log.info("Parâmetros da função ");
+							log.info("Sessão: " + sessao);
+							log.info("Código de ativação: " + tfCodAtivacao.getText());
+							retorno = Bema.ConsultarStatusOperacional(sessao, tfCodAtivacao.getText());
+							String retornoStr[] = retorno.split(Pattern.quote("|"));
+							log.info(retornoStr[1]);
+							TfSessao.setText(Integer.toString(sessao));
 							Alert AlRetorno = new Alert(AlertType.INFORMATION);
 							AlRetorno.setWidth(550);
 							AlRetorno.setTitle("Retorno do S@T");
-							AlRetorno
-									.setHeaderText("Retorno da FunÃ§Ã£o EnviarDadosVenda");
-							AlRetorno.setContentText("Mensagem de Retorno: " + retornoStr[3]);
+							AlRetorno.setHeaderText("Retorno da Função ConsultarStatusOperacional");
+							AlRetorno.setContentText("Mensagem de Retorno: " + retornoStr[2]);
 							TextArea textArea = new TextArea();
 							textArea.setEditable(false);
 							textArea.setWrapText(true);
-							textArea.setText("NÃºmero de SessÃ£o: "+retornoStr[0] + "\n"+
-									"CÃ³digo de Retorno: "+retornoStr[1] + "\n"+
-									"CÃ³digo de retorno de cancelamento: "+retornoStr[2] + "\n"+
-									"Mensagem de Retorno: "+retornoStr[3] + "\n"+
-									"CÃ³digo SEFAZ: "+retornoStr[4] + "\n"+
-									"Mensagem SEFAZ: "+retornoStr[5] + "\n"+
-									"Data e hora da emissÃ£o: "+retornoStr[7] + "\n"+
-									"Chave de acesso: "+retornoStr[8] + "\n"+
-									"Valor Total CF-e: "+retornoStr[9] + "\n"+
-									"NÃºmero do CPF ou CNPJ do adquirente: "+retornoStr[10] + "\n"+
-									"Assinatura QRCode: "+retornoStr[11] + "\n");
+							textArea.setText("Número de Sessão: " + retornoStr[0] + "\n\r" + "Código de Retorno: "
+									+ retornoStr[1] + "\n\r" + "Mensagem de Retorno: " + retornoStr[2] + "\n\r"
+									+ "Código Mensagem SEFAZ:  " + retornoStr[3] + "\n\r" + "Mensagem da Sefaz: "
+									+ retornoStr[4] + "\n\r" + "Número de Série: " + retornoStr[5] + "\n\r"
+									+ "Tipo da Lan: " + retornoStr[6] + "\n\r" + "IP: " + retornoStr[7] + "\n\r"
+									+ "Mac Address: " + retornoStr[8] + "\n\r" + "Máscara de Rede: " + retornoStr[9]
+									+ "\n\r" + "Gateway: " + retornoStr[10] + "\n\r" + "DNS Primário: " + retornoStr[11]
+									+ "\n\r" + "DNS Secundário: " + retornoStr[12] + "\n\r" + "Status da Lan: "
+									+ retornoStr[13] + "\n\r" + "Nível da Bateria: " + retornoStr[14] + "\n\r"
+									+ "Total de Memória: " + retornoStr[15] + "\n\r" + "Memória Utilizada: "
+									+ retornoStr[16] + "\n\r" + "Data e Hora Atual: " + retornoStr[17] + "\n\r"
+									+ "Versão Software Básico: " + retornoStr[18] + "\n\r" + "Versão do Layout: "
+									+ retornoStr[19] + "\n\r" + "Último CF-e Enviado: " + retornoStr[20] + "\n\r"
+									+ "Primeiro CF-e Armazenado: " + retornoStr[21] + "\n\r"
+									+ "Último CF-e Armazenado: " + retornoStr[22] + "\n\r"
+									+ "Última Transmissão de CF-e: " + retornoStr[23] + "\n\r"
+									+ "Última Comunicação com SEFAZ: " + retornoStr[24] + "\n\r"
+									+ "Emissão do Certificado: " + retornoStr[25] + "\n\r"
+									+ "Vencimento do Certificado: " + retornoStr[26] + "\n\r");
 
 							textArea.setMaxWidth(Double.MAX_VALUE);
 							textArea.setMaxHeight(Double.MAX_VALUE);
@@ -332,118 +373,748 @@ public class Main extends Application {
 							expContent.setMaxWidth(Double.MAX_VALUE);
 							expContent.add(textArea, 0, 0);
 
-							//AlRetorno.getDialogPane().setExpandableContent(expContent);
+							// AlRetorno.getDialogPane().setExpandableContent(expContent);
 							AlRetorno.getDialogPane().setContent(expContent);
 
 							AlRetorno.showAndWait();
-							
+
+						} catch (ArrayIndexOutOfBoundsException e) {
+							log.info("ConsultaStatusOperacional: " + e);
+							e.printStackTrace();
+							Alert alerta = new Alert(AlertType.ERROR);
+							alerta.setTitle("Status SAT");
+							alerta.setContentText(retorno);
+							alerta.showAndWait();
+						}
+
+						log.debug(BtConsStatusOp);
+						log.info("Retorno da Execução: ");
+						log.info(retorno);
+						log.info("Fim da execução da Função ConsultarStatusOperacional");
+						log.info("");
+
+					}
+				});
+
+				// EnviarDadosVenda-------------------------------------------------------------------
+				BtEnviarVenda = new Button("EnviarDadosVenda");
+				BtEnviarVenda.setOnAction(new EventHandler<ActionEvent>() {
+
+					/*
+					 * (non-Javadoc)
+					 * 
+					 * @see javafx.event.EventHandler#handle(javafx.event.Event)
+					 */
+					/*
+					 * (non-Javadoc)
+					 * 
+					 * @see javafx.event.EventHandler#handle(javafx.event.Event)
+					 */
+					public void handle(ActionEvent event) throws ArrayIndexOutOfBoundsException {
+						// Enviar dados venda
+
+						try {
+
+							// Pega o xml escolhido pelo usuário
+							FileChooser abreArq = new FileChooser();
+							abreArq.setTitle("Abrir arquivo XML");
+							abreArq.getExtensionFilters().addAll(new ExtensionFilter("Arquivo XML", "*.xml"));
+							File arqXML = abreArq.showOpenDialog(null);
+
+							FileReader fr = null;
+							BufferedReader br = null;
+							StringBuffer Retorno = new StringBuffer();
+							try {
+								fr = new FileReader(arqXML);
+								br = new BufferedReader(fr);
+								String linha;
+								while ((linha = br.readLine()) != null) {
+									Retorno.append(linha.trim());
+								}
+							} catch (FileNotFoundException e) {
+								e.printStackTrace();
+							} catch (IOException e) {
+								e.printStackTrace();
+							} finally {
+								try {
+									if (br != null)
+										br.close();
+									if (fr != null)
+										fr.close();
+								} catch (IOException e) {
+									e.printStackTrace();
+								}
+							}
+							xml = Retorno.toString();
+
+							log.info("Arquivo aberto: " + xml.toString());
+
+							int sessao = gerador.nextInt(999) * 100;
+							log.info("Inicia a execução da função EnviarDadosVenda");
+							log.info("Parâmetros da função ");
+							log.info("Sessão: " + sessao);
+							log.info("Código de ativação: " + tfCodAtivacao.getText());
+							log.info("XML de venda: " + xml);
+							retorno = Bema.EnviarDadosVenda(sessao, tfCodAtivacao.getText(), xml);
+							log.debug(BtEnviarVenda);
+							log.info("Retorno da Execução: ");
+							log.info(retorno);
+							TfSessao.setText(Integer.toString(sessao));
+
+							String retornoStr[] = retorno.split(Pattern.quote("|"));
+
+							Alert AlRetorno = new Alert(AlertType.INFORMATION);
+							AlRetorno.setWidth(550);
+							AlRetorno.setTitle("Retorno do S@T");
+							AlRetorno.setHeaderText("Retorno da Função EnviarDadosVenda");
+							AlRetorno.setContentText("Mensagem de Retorno: " + retornoStr[3]);
+							TextArea textArea = new TextArea();
+							textArea.setEditable(false);
+							textArea.setWrapText(true);
+							textArea.setText("Número de Sessão: " + retornoStr[0] + "\n\r" + "Código de Retorno: "
+									+ retornoStr[1] + "\n\r" + "Código de retorno de cancelamento: " + retornoStr[2]
+									+ "\n\r" + "Mensagem de Retorno: " + retornoStr[3] + "\n\r" + "Código SEFAZ: "
+									+ retornoStr[4] + "\n\r" + "Mensagem SEFAZ: " + retornoStr[5] + "\n\r"
+									+ "Data e hora da emissão: " + retornoStr[7] + "\n\r" + "Chave de acesso: "
+									+ retornoStr[8] + "\n\r" + "Valor Total CF-e: " + retornoStr[9] + "\n\r"
+									+ "Número do CPF ou CNPJ do adquirente: " + retornoStr[10] + "\n\r"
+									+ "Assinatura QRCode: " + retornoStr[11] + "\n\r");
+
+							textArea.setMaxWidth(Double.MAX_VALUE);
+							textArea.setMaxHeight(Double.MAX_VALUE);
+							GridPane.setVgrow(textArea, Priority.ALWAYS);
+							GridPane.setHgrow(textArea, Priority.ALWAYS);
+
+							GridPane expContent = new GridPane();
+							expContent.setMaxWidth(Double.MAX_VALUE);
+							expContent.add(textArea, 0, 0);
+
+							// AlRetorno.getDialogPane().setExpandableContent(expContent);
+							AlRetorno.getDialogPane().setContent(expContent);
+
+							AlRetorno.showAndWait();
+
 							TfChaveAcesso.setText(retornoStr[8]);
-							//Decodificando retorno Base64
-							String xmlRetornoVenda = retornoStr[6];
+
+							// Decodificando retorno Base64
+							xmlRetornoVenda = retornoStr[6];
 							log.info("Decodificando arquivo de retorno");
 							byte[] decodeBytes = Base64.decode(xmlRetornoVenda);
 							try {
-								String decoded = new String(decodeBytes, "UTF-8");							
-							
+								String decoded = new String(decodeBytes, "UTF-8");
+
 								log.info("XML de Retorno:");
 								log.info(decoded);
-								log.info("Fim da execuÃ§Ã£o da FunÃ§Ã£o EnviarDadosVenda");
+								log.info("Fim da execução da Função EnviarDadosVenda");
 								log.info("");
-							
-							//Criando arquivo xml de retorno
-							 File arquivo;  
-							 
-							//Cria o arquivo xml com a chave de acesso no C:\
-				            arquivo = new File("C:\\"+retornoStr[8]+".xml");  
-				            log.info("Criando o arquivo: "+arquivo.toString());
-				            FileOutputStream fos = new FileOutputStream(arquivo); 
-				            fos.write(decoded.getBytes());
-				            
-				            //Montando a impressÃ£o
-				            File arquivoXml = new File("C:\\"+retornoStr[8]+".xml");				            
-				            
+
+								// Cria o arquivo xml com a chave de acesso no
+								// C:\
+								cfe = retornoStr[8];
+								arquivo = new File("C:\\APPBEMASAT\\" + cfe + ".xml");
+								log.info("Criando o arquivo: " + arquivo.toString());
+								FileOutputStream fos = new FileOutputStream(arquivo);
+								fos.write(decoded.getBytes());
+
+								// LEITURA XML
+								// +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+								// fazer o parse do arquivo e criar o documento
+								// XML
+								DocumentBuilderFactory dbfx = DocumentBuilderFactory.newInstance();
+								DocumentBuilder dbx = dbfx.newDocumentBuilder();
+								Document docx = dbx.parse(arquivo.toString());
+
+								// Passo 1: obter o elemento raiz
+								Element raiz = docx.getDocumentElement();
+								// log.info("O elemento raiz é:
+								// "+raiz.getNodeName());
+
+								// Passo 2: obter nome do emitente
+								NodeList listaNome = raiz.getElementsByTagName("xNome");
+								Node nome = listaNome.item(0).getFirstChild();
+								log.info("Nome: " + nome.getNodeValue());
+
+								// Passo 3: obter endereço do emitente
+								NodeList listaRua = raiz.getElementsByTagName("xLgr");
+								Node rua = listaRua.item(0).getFirstChild();
+
+								NodeList listaNum = raiz.getElementsByTagName("nro");
+								Node num = listaNum.item(0).getFirstChild();
+
+								NodeList listaCompl = raiz.getElementsByTagName("xCpl");
+								Node compl = listaCompl.item(0).getFirstChild();
+
+								NodeList listaBairro = raiz.getElementsByTagName("xBairro");
+								Node bairro = listaBairro.item(0).getFirstChild();
+
+								NodeList listaCidade = raiz.getElementsByTagName("xMun");
+								Node cidade = listaCidade.item(0).getFirstChild();
+
+								NodeList listaCep = raiz.getElementsByTagName("CEP");
+								Node cep = listaCep.item(0).getFirstChild();
+
+								log.info("Endereço: " + rua.getNodeValue() + ", " + num.getNodeValue() + " "
+										+ compl.getNodeValue() + " " + bairro.getNodeValue() + " "
+										+ cidade.getNodeValue() + " CEP: " + cep.getNodeValue());
+
+								// Passo 4: obter ie e cnpj o emitente
+								// obter cnpj do emitente
+								NodeList ListaCnpj = raiz.getElementsByTagName("CNPJ");
+								Node cnpj = ListaCnpj.item(0).getFirstChild();
+
+								NodeList listaIe = raiz.getElementsByTagName("IE");
+								Node ie = listaIe.item(0).getFirstChild();
+
+								log.info("CNPJ: " + cnpj.getNodeValue() + " IE: " + ie.getNodeValue());
+
+								// Passo 5: obter cpf do destinatário
+								/*
+								 * NodeList listaCpf =
+								 * raiz.getElementsByTagName("CPF"); if
+								 * (listaCpf.item(0)!=null) { Node cpf =
+								 * listaCpf.item(0).getFirstChild(); log.info(
+								 * "CPF/CNPJ do consumidor: "
+								 * +cpf.getNodeValue()); }
+								 * 
+								 * Node cpf=null;
+								 */
+
+								// Passo 6: obter dados da venda
+
+								// Passo 7: localizar os elemento filhos do det
+								NodeList listaDet = raiz.getElementsByTagName("det");
+
+								// Passo 8: obter cada elemento do elemento
+								// det
+								for (int i = 0; i < listaDet.getLength(); i++) {
+
+									// como cada elemento do NodeList é um nó,
+									// precisamos fazer o cast
+									Element venda = (Element) listaDet.item(i);
+
+									// Passo 9: obter o atributo id do det
+									id = venda.getAttributeNode("nItem");
+									log.info("\n\rID do produto: " + id.getValue());
+
+									// Passo 10: obtem os elementos da venda
+									NodeList listaCod = raiz.getElementsByTagName("cProd");
+									cod = listaCod.item(0).getFirstChild();
+									log.info("codigo: " + cod.getNodeValue());
+
+									NodeList listaDescri = raiz.getElementsByTagName("xProd");
+									descri = listaDescri.item(0).getFirstChild();
+									log.info("Descrição: " + descri.getNodeValue());
+
+									NodeList listaNcm = raiz.getElementsByTagName("NCM");
+									ncm = listaNcm.item(0).getFirstChild();
+									log.info("NCM: " + ncm.getNodeValue());
+
+									NodeList listaCfop = raiz.getElementsByTagName("CFOP");
+									cfop = listaCfop.item(0).getFirstChild();
+									log.info("CFOP: " + cfop.getNodeValue());
+
+									NodeList listaUn = raiz.getElementsByTagName("uCom");
+									un = listaUn.item(0).getFirstChild();
+									log.info("UN: " + un.getNodeValue());
+
+									NodeList listaQtde = raiz.getElementsByTagName("qCom");
+									qtde = listaQtde.item(0).getFirstChild();
+									log.info("Quantidade: " + qtde.getNodeValue());
+
+									NodeList listaValorUn = raiz.getElementsByTagName("vProd");
+									valorUn = listaValorUn.item(0).getFirstChild();
+									log.info("Valor Unit.: " + valorUn.getNodeValue());
+
+									NodeList listaAliq = raiz.getElementsByTagName("vItem12741");
+									aliq = listaAliq.item(0).getFirstChild();
+									log.info("Aliquota: " + aliq.getNodeValue());
+
+									NodeList listaValorItem = raiz.getElementsByTagName("vItem");
+									valorItem = listaValorItem.item(0).getFirstChild();
+									log.info("Valor do Item: " + valorItem.getNodeValue());
+
+									NodeList listaIndRegra = raiz.getElementsByTagName("indRegra");
+									indRegra = listaIndRegra.item(0).getFirstChild();
+									log.info("Regra: " + indRegra.getNodeValue());
+
+									NodeList listaDesc = raiz.getElementsByTagName("vDesc");
+									indDesc = listaDesc.item(0).getFirstChild();
+									log.info("Desconto: " + indDesc.getNodeValue());
+
+									NodeList listaOutro = raiz.getElementsByTagName("vOutro");
+									outro = listaOutro.item(0).getFirstChild();
+									log.info("Outros: " + outro.getNodeValue());
+								}
+
+								// Passo 11: obter totais da venda
+								// obter total bruta da venda
+								NodeList listaTotalizador = raiz.getElementsByTagName("total");
+								Element total = (Element) listaTotalizador.item(0);
+
+								NodeList listaTotal = total.getElementsByTagName("vProd");
+								Node totalVenda = listaTotal.item(0).getFirstChild();
+								log.info("Total: " + totalVenda.getNodeValue());
+
+								// obter o valor total de descontos, se houver
+								NodeList listaDescTotal = total.getElementsByTagName("vDesc");
+								if (listaDescTotal == null) {
+									log.info("Desconto nulo");
+								}
+								Node descTotal = listaDescTotal.item(0).getFirstChild();
+								log.info("Desconto total: " + descTotal.getNodeValue());
+
+								// obter o valor total de acréscimos, se houver
+								NodeList listaAcrescTotal = total.getElementsByTagName("vOutro");
+								if (listaAcrescTotal == null) {
+									log.info("Acréscimo nulo");
+								}
+								Node acrescTotal = listaAcrescTotal.item(0).getFirstChild();
+								log.info("Acréscimo total: " + acrescTotal.getNodeValue());
+
+								// obter o valor total de tributos
+								NodeList listaTrib = total.getElementsByTagName("vCFeLei12741");
+								Node trib = listaTrib.item(0).getFirstChild();
+								log.info("Total de tributos: " + trib.getNodeValue());
+
+								// obter o valor total do CF-e
+								NodeList totalCFe = total.getElementsByTagName("vCFe");
+								Node vCFe = totalCFe.item(0).getFirstChild();
+								log.info("Total CF-e: " + vCFe.getNodeValue());
+
+								// obter valor total de tributos
+								NodeList listaTotalTrib = total.getElementsByTagName("vCFeLei12741");
+								Node totalTrib = listaTotalTrib.item(0).getFirstChild();
+								log.info("Valor total de tributos em R$: " + totalTrib.getNodeValue());
+
+								// Passo 12: obter dados do pagamento
+								NodeList listaPag = raiz.getElementsByTagName("pgto");
+								Element pgto = (Element) listaPag.item(0);
+
+								// obter a forma de pagamento
+								NodeList listaMeioPag = pgto.getElementsByTagName("cMP");
+								Node meioPag = listaMeioPag.item(0).getFirstChild();
+								log.info("Inidice Forma Pagamento: " + meioPag.getNodeValue());
+
+								// obter o valor do pagamento
+								NodeList listaValorPag = pgto.getElementsByTagName("vMP");
+								Node valorPag = listaValorPag.item(0).getFirstChild();
+								log.info("Valor Pagamento: " + valorPag.getNodeValue());
+
+								// Passo 13: obter dados do pagamento
+								// obter a forma de pagamento
+								NodeList listaTroco = pgto.getElementsByTagName("vTroco");
+								Node troco = listaTroco.item(0).getFirstChild();
+								log.info("Troco: " + troco.getNodeValue());
+
+								// Passo 14: obter informações do final do
+								// cupom
+								// obter elemento infAdic
+								NodeList listaInfo = raiz.getElementsByTagName("infAdic");
+								Element info = (Element) listaInfo.item(0);
+								// obter informações complementares
+								NodeList listaInfCompl = info.getElementsByTagName("infCpl");
+								Node infCompl = listaInfCompl.item(0).getFirstChild();
+								log.info("Informações Compl.: " + infCompl.getNodeValue());
+
+								// obter observações fisco
+								NodeList listaObsFisco = info.getElementsByTagName("obsFisco");
+								Node obsFisco = listaObsFisco.item(0).getFirstChild();
+								log.info("Obs Fisco: " + obsFisco.getNodeValue());
+
+								// Passo 15: obter chave de acesso
+								NodeList listaInfCFeChave = raiz.getElementsByTagName("infCFe");
+								// como cada elemento do NodeList é um nó,
+								// precisamos fazer o cast
+								Element chave = (Element) listaInfCFeChave.item(0);
+								// obter o atributo id do infCFe
+								Attr idKeyAccess = chave.getAttributeNode("Id");
+								log.info("Chave de acesso: " + idKeyAccess.getValue());
+
+								// Passo 16: obter o QR Code
+								NodeList listaAssQRCode = raiz.getElementsByTagName("assinaturaQRCODE");
+								Node assQRCode = listaAssQRCode.item(0).getFirstChild();
+								log.info("Ass. QRCode: " + assQRCode.getNodeValue());
+
+								/*
+								 * COMANDOS DE FORMATAÇÃO===============
+								 * 
+								 * (char)27+(char)97+(char)1 = centralizado
+								 * (char)27+(char)51+(char)18 = espaço entre
+								 * linhas menor (char)27+(char)69 = negrito
+								 * (char)27+(char)70 = fecha negrito
+								 * (char)27+(char)15 = condensado
+								 * (char)27+(char)80 = fecha condensado
+								 * (char)27+(char)64 = reset impressora
+								 * 
+								 * ======================================
+								 */
+								/*
+								 * FORMATATX==========================
+								 * TipoLetra: 1 = comprimido 2 = normal 3 =
+								 * elite
+								 * 
+								 * Itálico: 1 = ativa o modo itálico. 0 =
+								 * desativa o modo itálico
+								 * 
+								 * Sublinhado: 1 = ativa o modo sublinhado 0 =
+								 * desativa o modo sublinhado
+								 * 
+								 * Expandido: 1 = ativa o modo expandido 0 =
+								 * desativa o modo expandido
+								 * 
+								 * Enfatizado (negrito): 1 = ativa o modo
+								 * enfatizado 0 = desativa o modo enfatizado
+								 * =====================================
+								 */							
+
+								String name = "/APPBEMASAT/logo.bmp";
+								mp2032.ImprimeBitmap(name , 0);
+								
+								String BufTrans = "" + (char) 27 + (char) 51 + (char) 18;
+								mp2032.ComandoTX(BufTrans, BufTrans.length());
+								
+								String cabecalho = nome.getNodeValue() + "\n\r";
+								cabecalho += rua.getNodeValue() + " ";
+								cabecalho += num.getNodeValue() + " ";
+								cabecalho += compl.getNodeValue() + " ";
+								cabecalho += bairro.getNodeValue() + "\n\r";
+								cabecalho += cidade.getNodeValue();
+								cabecalho += " CEP: " + cep.getNodeValue() + "\n\r";
+								cabecalho += "CNPJ: " + cnpj.getNodeValue() + " IE " + ie.getNodeValue() + "\n\r";
+								cabecalho += "__________________________________________________\n\r";
+								cabecalho += "EXTRATO No. 000000";
+								cabecalho += " \n\rCUPOM FISCAL ELETRÔNICO - SAT\n\r";
+								cabecalho += "= TESTE =\n\r";
+								cabecalho += ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>";
+								cabecalho += ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>";
+								cabecalho += ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>";
+								cabecalho += "__________________________________________________";
+								mp2032.BematechTX(cabecalho);
+								log.info("\n"+cabecalho);
+
+								String cpf = "CPF/CNPJ do consumidor:                                            ";
+								cpf += "___________________________________________________________________";
+								cpf += "| COD |  DESC  |  QTD |  UN  | VL UN R$ |(VL TR R$) * | VL ITEM R$ ";
+								cpf += "___________________________________________________________________";
+								mp2032.FormataTX(cpf, 1, 0, 0, 0, 0);
+								log.info("\n"+cpf);
+
+								String cmd = ""+(char)27+(char)64;
+								mp2032.ComandoTX(cmd , cmd.length());
+								
+								String infoVenda = "";
+								int cont = Integer.parseInt(id.getValue());
+								for (int i = 0; i < listaDet.getLength(); i++) {
+									infoVenda += id.getValue() + " ";
+									infoVenda += cod.getNodeValue() + " ";
+									infoVenda += descri.getNodeValue() + " ";
+									infoVenda += "\n\r" + qtde.getNodeValue() + " ";
+									infoVenda += un.getNodeValue() + " X " + valorUn.getNodeValue() + " ("
+											  + aliq.getNodeValue() + ") ";
+									infoVenda += valorItem.getNodeValue();
+
+								}
+								mp2032.FormataTX(infoVenda, 1, 0, 0, 0, 0);
+								log.info("\n"+infoVenda);
+
+								String item = "\n\rTotal bruto do item ";
+								item += totalVenda.getNodeValue();
+								/*
+								 * while (it.length() < 48) { item += " " + it;
+								 * }
+								 */
+								item += "\n\r                  ------------------------------";
+								mp2032.BematechTX(item);
+								log.info("\n"+item);
+
+								String infoTot = "\nTOTAL R$ ";
+								infoTot += vCFe.getNodeValue();
+								/*
+								 * while (sTotal.length() < 48) { infoTot += " "
+								 * + sTotal; }
+								 */
+								mp2032.FormataTX(infoTot, 2, 0, 0, 0, 1);
+								log.info("\n"+infoTot);
+
+								String pag = "";
+								switch (meioPag.getNodeValue()) {
+								case "01":
+									pag = "Dinheiro ";
+									break;
+								case "02":
+									pag = "Cheque ";
+									break;
+								case "03":
+									pag = "Cartão de Crédito ";
+									break;
+								case "04":
+									pag = "Cartão de Débito ";
+									break;
+								case "05":
+									pag = "Crédito Loja ";
+									break;
+								case "10":
+									pag = "Vale Alimentação ";
+									break;
+								case "11":
+									pag = "Vale Refeição ";
+									break;
+								case "12":
+									pag = "Vale Presente ";
+									break;
+								case "13":
+									pag = "Vale Combustível ";
+									break;
+								case "99":
+									pag = "Outros ";
+									break;
+								default:
+									break;
+								}
+								String pagamento = "\n" + pag;
+								pagamento += valorPag.getNodeValue();
+								pagamento += "\n" + "Troco R$";
+								pagamento += troco.getNodeValue() + "\n";
+								mp2032.BematechTX(pagamento);
+								log.info("\n"+pagamento);
+
+								String mensFis = "__________________________________________________";
+								String fisco = "";
+								if ((obsFisco.getNodeValue() == "xTexto1") || (obsFisco.getNodeValue() == null)){
+									fisco =      "\nNão há mensagem do Fisco                          ";												
+								} else {
+									fisco = obsFisco.getNodeValue();
+								}
+								mensFis += fisco;
+								mp2032.BematechTX(mensFis);
+								log.info("\n"+mensFis);
+								
+								String mensagens = "_______________________________________________________________";
+								mensagens += "\n\rOBSERVAÇÕES DO CONTRIBUINTE\n\r";
+								mensagens += infCompl.getNodeValue() + "\n\r";
+								mensagens += "Valor aproximado dos tributos deste cupom em R$ ";
+								mensagens += totalTrib.getNodeValue();
+								mensagens += "\n\r(Conforme Lei Fed. 12.741/2012)";
+								mensagens += "\n\rValor aproximado dos tributos do item\n\r";
+								mensagens += "_______________________________________________________________";
+								mp2032.FormataTX(mensagens, 1, 0, 0, 0, 0);
+								log.info("\n"+mensagens);
+
+								String centro2 = "" + (char) 27 + (char) 97 + (char) 0;
+								mp2032.ComandoTX(centro2, centro2.length());
+
+								String numSerie = result.get();
+								String serie1 = numSerie.substring(0, 3) + ".";
+								String serie2 = numSerie.substring(3, 6) + ".";
+								String serie3 = numSerie.substring(6, 9);
+								serie = serie1 + serie2 + serie3;
+								String satNum = "\n\rSAT No. " + serie + "\n\r";
+								mp2032.FormataTX(satNum, 2, 0, 0, 0, 1);
+								log.info("\n"+satNum);
+
+								// Data formatada
+								SimpleDateFormat sd = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+								Date dataAtual = new Date();
+								String BufData = sd.format(dataAtual) + "\n";
+								mp2032.BematechTX(BufData);
+								log.info("\n"+BufData);
+
+								String textoChave = idKeyAccess.getValue().substring(3, 47);
+								log.info("textoChave: " + textoChave);
+								String infoChave = textoChave.replaceAll("(.{4})", "$1 ");
+								mp2032.FormataTX(infoChave, 1, 0, 0, 0, 1);
+								log.info("\n"+infoChave);
+
+								int Altura = 60;
+								int Largura = 0;
+								int PosicaoCaracteres = 0;
+								int Fonte = 0;
+								int Margem = 0;
+								iRetorno = mp2032.ConfiguraCodigoBarras(Altura, Largura, PosicaoCaracteres, Fonte,
+										Margem);
+								String Codigo = idKeyAccess.getValue();
+								StringBuffer key2 = new StringBuffer(Codigo);
+								key2.deleteCharAt(3); // exclui as 3 primeiras
+														// letras
+
+								log.info("Chave de Acesso: " + idKeyAccess.getValue());
+								iRetorno = mp2032.ImprimeCodigoBarrasCODE128(textoChave);
+
+								/*
+								 * A cadeia de caracteres para geração do QR
+								 * Code , quando o CPF ou CNPJ é informado,
+								 * possui a formatação:
+								 * 
+								 * chaveConsulta|timeStamp|valorTotal|
+								 * CPFCNPJValue| assinaturaQRCODE
+								 * 
+								 * Para o caso em que nem o CPF e nem o CNPJ são
+								 * informados, a formatação a ser seguida é
+								 * conforme abaixo (observar o pipe duplo):
+								 * 
+								 * chaveConsulta|timeStamp|valorTotal||
+								 * assinaturaQRCODE
+								 */
+
+								int errorCorrectionLevel = 1;
+								int moduleSize = 5;
+								int codeType = 0;
+								int QRCodeVersion = 10;
+								int encodingModes = 1;
+								String codeQr = "";
+								if (retornoStr[10] != null) {
+									codeQr = textoChave + retornoStr[7] + retornoStr[9] + retornoStr[10]
+											+ retornoStr[11];
+								} else {
+									codeQr = textoChave + retornoStr[7] + retornoStr[9] + retornoStr[11];
+								}
+								iRetorno = mp2032.ImprimeCodigoQRCODE(errorCorrectionLevel, moduleSize, codeType,
+										QRCodeVersion, encodingModes, codeQr);
+
+								int Modo = 1;
+								iRetorno = mp2032.AcionaGuilhotina(Modo);
+
+								String fCentro2 = "" + (char) 27 + (char) 64;// fecha
+																				// centralização
+								mp2032.ComandoTX(fCentro2, fCentro2.length());
+
 							} catch (IOException e) {
-								log.error("Erro de IOException na decodificaÃ§Ã£o do retorno: ",e);									
+								log.error("Erro de IOException na decodificação do retorno: ", e);
+								e.printStackTrace();
+							} catch (SAXException e) {
+								// SAXException
+								e.printStackTrace();
+							} catch (ParserConfigurationException e) {
+								// ParserConfigurationException
 								e.printStackTrace();
 							}
+
+						} catch (ArrayIndexOutOfBoundsException e) {
+							e.printStackTrace();
+							log.error(e);
+							Alert alerta = new Alert(AlertType.ERROR);
+							alerta.setTitle("Erro ArrayIndexOutOfBoundsException");
+							alerta.setContentText(retorno);
+							alerta.showAndWait();
+						}
 					}
-					catch (Exception e) {
 
-						log.error("Erro de Exception: ",e);
+				});
+
+				// Botão imprimir
+				// venda-----------------------------------------------------------
+
+				BtImprimirVenda = new Button("Imprimir Cupom");
+				BtImprimirVenda.setOnAction(new EventHandler<ActionEvent>() {
+
+					@Override
+					public void handle(ActionEvent event) {
+
+						ImprimeCFe parserImprimeCFe = new ImprimeCFe();
+
+						try {
+							List<ConteudoXML> conteudo = parserImprimeCFe.leituraXML(arquivo.toString());
+							for (ConteudoXML conteudoXML : conteudo) {
+								System.out.println(conteudoXML);
+								log.info(conteudoXML);
+							}
+
+						} catch (ParserConfigurationException e) {
+							log.error(e);
+							e.printStackTrace();
+						} catch (SAXException e) {
+							log.error(e);
+							e.printStackTrace();
+						} catch (IOException e) {
+							log.error(e);
+							e.printStackTrace();
+						}
+
 					}
-				}	
-				
-			});
-		
-            //BotÃ£o Imprimir---------------------------------------------------------------
-            BtImprimirVenda = new Button("Imprimir CF-e");
-            BtImprimirVenda.setOnAction(new EventHandler<ActionEvent>() {
+				});
 
-				public void handle(ActionEvent arg0) {
-					// TODO Imprimir CF-e
-					int iRetorno;
-					
-					/*JAXBContext context = JAXBContext.newInstance("br.com.caelum");
-					Unmarshaller unmarshaller = context.createUnmarshaller();
-					JAXBElement<emit> element = (JAXBElement<Carro>) unmarshaller.unmarshal(new File("resources/carro.xml"));
-					Carro carro = element.getValue();*/
-					
-					String BufTrans = "";
-					iRetorno = mp2032.BematechTX(BufTrans );
-										
-				}
-			});
-            
+				// Posicionamento dos componentes no
+				// Pane=======================================
 
-			// Posicionamento dos componentes no Pane=======================================
-			LbSessao.setTranslateX(20); // define orientaÃ§Ã£o horizontal
-			LbSessao.setTranslateY(10); // define orientaÃ§Ã£o vertical
+				TxCombo.setTranslateX(20);
+				TxCombo.setTranslateY(10);
 
-			mostraLogo.setTranslateX(470);
-			mostraLogo.setTranslateY(10);
+				CbModelo.setTranslateX(220);
+				CbModelo.setTranslateY(10);
 
-			TfSessao.setTranslateX(130);
-			TfSessao.setTranslateY(10);
+				TxPorta.setTranslateX(20);
+				TxPorta.setTranslateY(50);
 
-			LbCodAtivacao.setTranslateX(200);
-			LbCodAtivacao.setTranslateY(10);
+				/*
+				 * combo.setTranslateX(120); combo.setTranslateY(50);
+				 */
 
-			tfCodAtivacao.setTranslateX(320);
-			tfCodAtivacao.setTranslateY(10);
+				TfPorta.setTranslateX(120);
+				TfPorta.setTranslateY(50);
+				TfPorta.setMaxWidth(80);
 
-			BtConsultaSAT.setTranslateX(20);
-			BtConsultaSAT.setTranslateY(50);
-			BtConsultaSAT.setMinWidth(200);
+				localImpressora.setTranslateX(210);
+				localImpressora.setTranslateY(50);
 
-			BtConsStatusOp.setTranslateX(240);
-			BtConsStatusOp.setTranslateY(50);
-			BtConsStatusOp.setMinWidth(200);
-			
-			TfChaveAcesso.setTranslateX(240);
-			TfChaveAcesso.setTranslateY(100);
-			TfChaveAcesso.setMinWidth(360);
-			
-			BtEnviarVenda.setTranslateX(20);
-			BtEnviarVenda.setTranslateY(100);
-			BtEnviarVenda.setMinWidth(200);
+				Separator sepHoriz = new Separator();
+				sepHoriz.prefWidth(600);
+				sepHoriz.setTranslateY(80);
 
-			Pane root = new Pane();
-			root.getChildren().addAll(LbSessao, TfSessao, LbCodAtivacao,
-					tfCodAtivacao, mostraLogo, BtConsultaSAT, BtConsStatusOp, TfChaveAcesso, BtEnviarVenda);
-			root.getStyleClass().add("root");
-			Scene scene = new Scene(root, 650, 650);
-			scene.getStylesheets().add(
-					getClass().getResource("application.css").toExternalForm());
-			primaryStage.setScene(scene);
-			primaryStage.show();
+				LbSessao.setTranslateX(20); // define orientação horizontal
+				LbSessao.setTranslateY(110); // define orientação vertical
 
-		} catch (Exception e) {
-			e.printStackTrace();
+				BtImprimirVenda.setTranslateX(20);
+				BtImprimirVenda.setTranslateY(260);
+
+				mostraLogo.setTranslateX(470);
+				mostraLogo.setTranslateY(10);
+
+				TfSessao.setTranslateX(130);
+				TfSessao.setTranslateY(110);
+
+				LbCodAtivacao.setTranslateX(200);
+				LbCodAtivacao.setTranslateY(110);
+
+				tfCodAtivacao.setTranslateX(320);
+				tfCodAtivacao.setTranslateY(110);
+
+				BtConsultaSAT.setTranslateX(20);
+				BtConsultaSAT.setTranslateY(150);
+				BtConsultaSAT.setMinWidth(200);
+
+				BtConsStatusOp.setTranslateX(240);
+				BtConsStatusOp.setTranslateY(150);
+				BtConsStatusOp.setMinWidth(200);
+
+				TfChaveAcesso.setTranslateX(240);
+				TfChaveAcesso.setTranslateY(200);
+				TfChaveAcesso.setMinWidth(360);
+
+				BtEnviarVenda.setTranslateX(20);
+				BtEnviarVenda.setTranslateY(200);
+				BtEnviarVenda.setMinWidth(200);
+
+				Pane root = new Pane();
+				root.getChildren().addAll(TxCombo, TxPorta, CbModelo, TfPorta, localImpressora, sepHoriz, LbSessao,
+						TfSessao, LbCodAtivacao, tfCodAtivacao, mostraLogo, BtConsultaSAT, BtConsStatusOp,
+						TfChaveAcesso, BtEnviarVenda, BtImprimirVenda);
+				root.getStyleClass().add("root");
+				Scene scene = new Scene(root, 650, 650);
+				scene.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
+				primaryStage.setScene(scene);
+				primaryStage.setTitle("Teste BemaSAT    SAT: " + result.get());
+				primaryStage.getIcons().add(logo);
+				primaryStage.show();
+
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 		}
-	}	
-	
+
+	}
+
 	public static void main(String[] args) {
-		launch(args);				
-		
+		launch(args);
+
 	}
 }

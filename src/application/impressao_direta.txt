@@ -1,0 +1,136 @@
+try 
+					        {                
+					           //Abertura da impressora 
+					           FileOutputStream fost = new FileOutputStream("COM4"); 
+					           PrintWriter cfe = new PrintWriter(fost); 
+					   
+					           //Impressao
+					           cfe.print( ""+(char )27+(char)97+(char)1);
+					           cfe.print( nome.getNodeValue() + "\n");
+							   cfe.print( rua.getNodeValue() + " ");
+							   cfe.print( num.getNodeValue() + " ");
+							   cfe.print( compl.getNodeValue() + " ");
+							   cfe.print( bairro.getNodeValue() + "\n");
+							   cfe.print( cidade.getNodeValue());
+							   cfe.print( " CEP: " + cep.getNodeValue() + "\n");
+							   cfe.print( "CNPJ: " + cnpj.getNodeValue() + " IE " + ie.getNodeValue() + "\n");
+							   cfe.print( "__________________________________________________\n");
+							   cfe.print( "EXTRATO No. 000000");
+							   cfe.print( " \nCUPOM FISCAL ELETRÔNICO - SAT\n");
+							   cfe.print( "= TESTE =\n");
+							   cfe.print( ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
+							   cfe.print( ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
+							   cfe.print( ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
+							   cfe.print( "__________________________________________________");
+							   cfe.print( ""+(char )27+(char)64);
+							   cfe.print( "\nCPF/CNPJ do consumidor: \n");					
+							   cfe.print( "__________________________________________________");
+							   cfe.print( ""+(char )27+(char)15+"| COD |  DESC  |  QTD |  UN  | VL UN R$ |(VL TR R$) * | VL ITEM R$ \n");
+							   int cont = Integer.parseInt(id.getValue());
+							   for (int i = 0; i < listaDet.getLength(); i++) {
+								cfe.print( id.getValue() + " ");
+								cfe.print( cod.getNodeValue() + " ");
+								cfe.print( descri.getNodeValue() + " ");
+								cfe.print( "\n" + qtde.getNodeValue() + " ");
+								cfe.print( un.getNodeValue() + " X " + valorUn.getNodeValue() + " ("
+											+ aliq.getNodeValue() + ") ");
+								
+								String item1 = valorItem.getNodeValue();
+								while (item1.length() < 48) {
+									cfe.print( " "+item1);
+								}
+								cfe.print( "\nTotal bruto do item ");
+								String item2 = totalVenda.getNodeValue();
+								while (item2.length() < 48) {
+									cfe.print( " "+item2);
+								}
+								String item3 = "\n------------------------------";
+								while (item3.length() < 48) {
+									cfe.print( " "+item3);
+								}
+							   }
+								cfe.print( "\nTOTAL R$ ");
+								String sTotal = vCFe.getNodeValue();
+								while (sTotal.length() < 48) {
+									sTotal = " "+sTotal;
+								}
+								
+								String pag = "";
+
+								switch (meioPag.getNodeValue()) {
+								case "01":
+									pag = "Dinheiro ";
+									break;
+								case "02":
+									pag = "Cheque ";
+									break;
+								case "03":
+									pag = "Cartão de Crédito ";
+									break;
+								case "04":
+									pag = "Cartão de Débito ";
+									break;
+								case "05":
+									pag = "Crédito Loja ";
+									break;
+								case "10":
+									pag = "Vale Alimentação ";
+									break;
+								case "11":
+									pag = "Vale Refeição ";
+									break;
+								case "12":
+									pag = "Vale Presente ";
+									break;
+								case "13":
+									pag = "Vale Combustível ";
+									break;
+								case "99":
+									pag = "Outros ";
+									break;
+
+								default:
+									break;
+								}
+
+								String pagamento = pag;
+								cfe.print( valorPag.getNodeValue());
+								
+								cfe.print( "\n" + "Troco R$");
+								String tr = troco.getNodeValue();
+								while (tr.length() < 48) {
+									cfe.print( " "+tr);
+								}
+								cfe.print( "\n__________________________________________________\n");
+								String fisco = "";
+								if (obsFisco.getNodeValue() == "xTexto1") {
+									cfe.print( "\nNão há mensagem do Fisco\n");
+								} else if (obsFisco.getNodeValue() == null) {
+									cfe.print( "Não há mensagem do Fisco\n");
+								} else {
+									cfe.print( obsFisco.getNodeValue());
+								}
+
+								cfe.print( "_______________________________________________________________");
+								cfe.print( "\nOBSERVAÇÕES DO CONTRIBUINTE\n");
+								cfe.print( infCompl.getNodeValue() + "\n");
+								cfe.print( "Valor aproximado dos tributos deste cupom em R$ ");
+								cfe.print( totalTrib.getNodeValue());
+								cfe.print( "\n(Conforme Lei Fed. 12.741/2012)");
+								cfe.print( "\nValor aproximado dos tributos do item\n");
+								cfe.print( "_______________________________________________________________\n");
+
+								String numSerie = result.get();
+								String serie1 = numSerie.substring(0, 3) + ".";
+								String serie2 = numSerie.substring(3, 6) + ".";
+								String serie3 = numSerie.substring(6, 9);
+								serie = serie1 + serie2 + serie3;
+								cfe.print( "\nSAT No. "+serie + "\n");
+								 System.out.println("deu certo");
+						           //fim da impressao 
+						           cfe.close(); 
+						        } 
+						        catch (Exception e) 
+						        { 
+						           System. out.println("Erro" ); 
+						        } 
