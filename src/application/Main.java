@@ -59,9 +59,12 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
+import javafx.scene.layout.VBox;
+import javafx.scene.text.Text;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
 
 public class Main extends Application {
@@ -99,10 +102,14 @@ public class Main extends Application {
 	Label lbNumSerieSat;
 
 	Button localImpressora;
-	Label TxCombo;
-	ComboBox<String> CbModelo;
 	Label TxPorta;
 	TextField TfPorta;
+	
+	Text texto;
+	Button BtEntrar;
+	Button BtCancelar;
+	TextField TfSerie;
+	
 
 	DocumentBuilderFactory dbf;
 	DocumentBuilder docBuilder;
@@ -152,37 +159,44 @@ public class Main extends Application {
 			log.info("Não foi possível criar o diretório " + dirCfe.getName() + " ou ele já existe.");
 		}
 
-		// Consultar o SAT antes de iniciar o programa
+		
+		/*TextInputDialog codAtivacao = new TextInputDialog("900006420");
+		codAtivacao.setTitle("Teste BemaSAT - BSP Bematech®");
+		codAtivacao.setHeaderText("Insira o número de série do SAT sem o digito");*/
+		
+		final Stage dialog = new Stage();
+        dialog.initModality(Modality.APPLICATION_MODAL);
+        dialog.initOwner(primaryStage);
+        Pane PaneDialog = new Pane();
+        texto = new Text("Número de série do SAT sem o digito: ");
+        TfSerie = new TextField("900006420");
+        TfSerie.setMaxWidth(80);
+        BtCancelar = new Button("Cancelar");
+        BtCancelar.setOnAction(new EventHandler<ActionEvent>() {
 
-		/*
-		 * try { sessao = gerador.nextInt(999) * 100; retorno =
-		 * Bema.ConsultarSAT(sessao); Alert alerta = new
-		 * Alert(AlertType.INFORMATION); alerta.setHeaderText("Status SAT"); //
-		 * alerta.setContentText("Mensagem de Retorno: " + retornoStr[2]);
-		 * alerta.setContentText(retorno); alerta.showAndWait();
-		 * 
-		 * } catch (ArrayIndexOutOfBoundsException e) { log.info(
-		 * "ConsultarSAT: " + e); e.printStackTrace(); Alert alerta = new
-		 * Alert(AlertType.ERROR); alerta.setHeaderText("Status SAT");
-		 * alerta.setContentText(retorno); alerta.showAndWait();
-		 * 
-		 * } catch (RuntimeException e) { e.printStackTrace(); Alert alerta =
-		 * new Alert(AlertType.ERROR); alerta.setHeaderText("Status SAT");
-		 * alerta.setContentText(e.toString()); alerta.showAndWait(); }
-		 */
+			@Override
+			public void handle(ActionEvent event) {
+				// TODO Auto-generated method stub
+				dialog.close();
+			}
+		});
+        
+        BtEntrar = new Button("Entrar");
+        BtEntrar.setOnAction(new EventHandler<ActionEvent>() {
 
-		TextInputDialog codAtivacao = new TextInputDialog("900006420");
-		codAtivacao.setHeaderText("Teste BemaSAT");
-		codAtivacao.setHeaderText("Insira as informações");
-		codAtivacao.setContentText("Número de série do SAT sem o digito:");						
+			@Override
+			public void handle(ActionEvent event) {
+				// TODO Entrar
+				
+		
 
 		// maneira tradicional para obter o valor de resposta.
-		Optional<String> result = codAtivacao.showAndWait();		
+		//Optional<String> result = codAtivacao.showAndWait();		
 			
-		numSerieSat = new TextField(result.get());
+		numSerieSat = new TextField(TfSerie.getText());
 		lbNumSerieSat = new Label("Série do SAT ");	
 			
-		if (result.isPresent()) {
+		//if (dialog.isPresent()) {
 
 			try {
 
@@ -201,12 +215,6 @@ public class Main extends Application {
 				 * 
 				 * } combo.getItems().add(portas);
 				 */
-
-				TxCombo = new Label("Selecione o modelo da impressora: ");
-				ObservableList<String> options = FXCollections.observableArrayList("MP-2500 TH", "MP-4200 TH",
-						"MP-100S TH");
-				CbModelo = new ComboBox<String>(options);
-				CbModelo.setValue("MP-4200 TH");
 				TxPorta = new Label("Selecione a porta: ");
 				TfPorta = new TextField("COM4");
 
@@ -215,30 +223,6 @@ public class Main extends Application {
 
 					@Override
 					public void handle(ActionEvent arg0) {
-						/*int modelo = 0;
-						if (CbModelo.getValue() == "MP-2500 TH") {
-							modelo = 8;
-						}
-						if (CbModelo.getValue() == "MP-4200 TH") {
-							modelo = 7;
-						}
-						if (CbModelo.getValue() == "MP-100S TH") {
-							modelo = 7;
-						}
-
-						iRetorno = mp2032.ConfiguraModeloImpressora(modelo);
-						if (iRetorno == 1) {
-							Alert alerta = new Alert(AlertType.INFORMATION);
-							alerta.setHeaderText("Retorno Impressora");
-							alerta.setContentText(
-									"Impressora modelo " + CbModelo.getValue() + " encontrada com sucesso!");
-							alerta.showAndWait();
-						} else {
-							Alert alerta = new Alert(AlertType.ERROR);
-							alerta.setHeaderText("Retorno Impressora");
-							alerta.setContentText("Impressora não encontrada!");
-							alerta.showAndWait();
-						}*/
 
 						iRetorno = mp2032.IniciaPorta(TfPorta.getText());
 						if (iRetorno == 1) {
@@ -1076,14 +1060,34 @@ public class Main extends Application {
 				Scene scene = new Scene(root, 650, 350);
 				scene.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
 				primaryStage.setScene(scene);
-				primaryStage.setTitle("Teste BemaSAT    SAT: " + result.get());
+				//primaryStage.setTitle("Teste BemaSAT    SAT: " + result.get());
 				primaryStage.getIcons().add(logo);
 				primaryStage.show();
 
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
-		}
+			}
+		});
+        
+        texto.setTranslateX(20);
+        texto.setTranslateY(20);
+        
+        TfSerie.setTranslateX(90);
+        TfSerie.setTranslateY(40);
+        
+        BtCancelar.setTranslateX(20);
+        BtCancelar.setTranslateY(100);
+        BtCancelar.setMinWidth(120);
+        
+        BtEntrar.setTranslateX(160);
+        BtEntrar.setTranslateY(100);
+        BtEntrar.setMinWidth(120);
+        
+        PaneDialog.getChildren().addAll(texto,TfSerie,BtCancelar,BtEntrar);
+        Scene dialogScene = new Scene(PaneDialog, 300, 160);
+        dialog.setScene(dialogScene);
+        dialog.show();
 
 	}
 
