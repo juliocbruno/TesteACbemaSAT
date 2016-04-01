@@ -35,6 +35,7 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import com.sun.org.apache.xerces.internal.impl.dv.util.Base64;
+import com.sun.org.apache.xerces.internal.impl.io.MalformedByteSequenceException;
 import com.thoughtworks.xstream.XStream;
 
 import javafx.application.Application;
@@ -94,6 +95,8 @@ public class Main extends Application {
 	TextField TfChaveAcesso;
 	Button BtImprimirVenda;
 	String retornoStr[];
+	TextField numSerieSat;
+	Label lbNumSerieSat;
 
 	Button localImpressora;
 	Label TxCombo;
@@ -134,11 +137,19 @@ public class Main extends Application {
 		gerador = new Random();
 
 		File dirTesteACBemaSAT = new File("C:\\APPBEMASAT");
+		File dirCfe = new File("C:\\APPBEMASAT\\CFE");
 		if (dirTesteACBemaSAT.mkdir()) {
 
 			log.info("Pasta " + dirTesteACBemaSAT.getName() + " criada com sucesso!");
 		} else {
 			log.info("Não foi possível criar o diretório " + dirTesteACBemaSAT.getName() + " ou ele já existe.");
+		}
+		
+		if (dirCfe.mkdir()) {
+
+			log.info("Pasta " + dirCfe.getName() + " criada com sucesso!");
+		} else {
+			log.info("Não foi possível criar o diretório " + dirCfe.getName() + " ou ele já existe.");
 		}
 
 		// Consultar o SAT antes de iniciar o programa
@@ -146,27 +157,31 @@ public class Main extends Application {
 		/*
 		 * try { sessao = gerador.nextInt(999) * 100; retorno =
 		 * Bema.ConsultarSAT(sessao); Alert alerta = new
-		 * Alert(AlertType.INFORMATION); alerta.setTitle("Status SAT"); //
+		 * Alert(AlertType.INFORMATION); alerta.setHeaderText("Status SAT"); //
 		 * alerta.setContentText("Mensagem de Retorno: " + retornoStr[2]);
 		 * alerta.setContentText(retorno); alerta.showAndWait();
 		 * 
 		 * } catch (ArrayIndexOutOfBoundsException e) { log.info(
 		 * "ConsultarSAT: " + e); e.printStackTrace(); Alert alerta = new
-		 * Alert(AlertType.ERROR); alerta.setTitle("Status SAT");
+		 * Alert(AlertType.ERROR); alerta.setHeaderText("Status SAT");
 		 * alerta.setContentText(retorno); alerta.showAndWait();
 		 * 
 		 * } catch (RuntimeException e) { e.printStackTrace(); Alert alerta =
-		 * new Alert(AlertType.ERROR); alerta.setTitle("Status SAT");
+		 * new Alert(AlertType.ERROR); alerta.setHeaderText("Status SAT");
 		 * alerta.setContentText(e.toString()); alerta.showAndWait(); }
 		 */
 
 		TextInputDialog codAtivacao = new TextInputDialog("900006420");
-		codAtivacao.setTitle("Teste BemaSAT");
+		codAtivacao.setHeaderText("Teste BemaSAT");
 		codAtivacao.setHeaderText("Insira as informações");
-		codAtivacao.setContentText("Número de série do SAT sem o digito:");
+		codAtivacao.setContentText("Número de série do SAT sem o digito:");						
 
-		// Traditional way to get the response value.
-		Optional<String> result = codAtivacao.showAndWait();
+		// maneira tradicional para obter o valor de resposta.
+		Optional<String> result = codAtivacao.showAndWait();		
+			
+		numSerieSat = new TextField(result.get());
+		lbNumSerieSat = new Label("Série do SAT ");	
+			
 		if (result.isPresent()) {
 
 			try {
@@ -200,10 +215,7 @@ public class Main extends Application {
 
 					@Override
 					public void handle(ActionEvent arg0) {
-						// TODO modelos de impressora
-
-						int modelo = 0;
-
+						/*int modelo = 0;
 						if (CbModelo.getValue() == "MP-2500 TH") {
 							modelo = 8;
 						}
@@ -217,27 +229,27 @@ public class Main extends Application {
 						iRetorno = mp2032.ConfiguraModeloImpressora(modelo);
 						if (iRetorno == 1) {
 							Alert alerta = new Alert(AlertType.INFORMATION);
-							alerta.setTitle("Retorno Impressora");
+							alerta.setHeaderText("Retorno Impressora");
 							alerta.setContentText(
 									"Impressora modelo " + CbModelo.getValue() + " encontrada com sucesso!");
 							alerta.showAndWait();
 						} else {
 							Alert alerta = new Alert(AlertType.ERROR);
-							alerta.setTitle("Retorno Impressora");
+							alerta.setHeaderText("Retorno Impressora");
 							alerta.setContentText("Impressora não encontrada!");
 							alerta.showAndWait();
-						}
+						}*/
 
 						iRetorno = mp2032.IniciaPorta(TfPorta.getText());
 						if (iRetorno == 1) {
 							Alert alerta = new Alert(AlertType.INFORMATION);
-							alerta.setTitle("Retorno Impressora");
+							alerta.setHeaderText("Retorno Impressora");
 							alerta.setContentText(
 									"Impressora conectada na porta " + TfPorta.getText() + " com sucesso!");
 							alerta.showAndWait();
 						} else {
 							Alert alerta = new Alert(AlertType.ERROR);
-							alerta.setTitle("Retorno Impressora");
+							alerta.setHeaderText("Retorno Impressora");
 							alerta.setContentText("Impressora não conectada!");
 							alerta.showAndWait();
 						}
@@ -270,8 +282,6 @@ public class Main extends Application {
 				BtConsultaSAT.setOnAction(new EventHandler<ActionEvent>() {
 
 					public void handle(ActionEvent event) {
-						// TODO ConsultaSAT
-
 						// gera número da sessão com 5 digitos
 						try {
 							int sessao = gerador.nextInt(999) * 100;
@@ -283,7 +293,6 @@ public class Main extends Application {
 							try {
 								ptext = retorno.getBytes("UTF8");
 							} catch (UnsupportedEncodingException e) {
-								// TODO Auto-generated catch block
 								e.printStackTrace();
 							}
 							for (int i = 0; i < ptext.length; i++) {
@@ -299,7 +308,7 @@ public class Main extends Application {
 							TfSessao.setText(Integer.toString(sessao));
 							Alert AlRetorno = new Alert(AlertType.INFORMATION);
 
-							AlRetorno.setTitle("Retorno do S@T");
+							AlRetorno.setHeaderText("Retorno do S@T");
 							AlRetorno.setHeaderText("Retorno da Função ConsultaSAT");
 
 							AlRetorno.setContentText(
@@ -310,7 +319,7 @@ public class Main extends Application {
 							log.info("ConsultarSAT: " + e);
 							e.printStackTrace();
 							Alert alerta = new Alert(AlertType.ERROR);
-							alerta.setTitle("Status SAT");
+							alerta.setHeaderText("Status SAT");
 							alerta.setContentText(retorno);
 							alerta.showAndWait();
 						}
@@ -338,7 +347,7 @@ public class Main extends Application {
 							TfSessao.setText(Integer.toString(sessao));
 							Alert AlRetorno = new Alert(AlertType.INFORMATION);
 							AlRetorno.setWidth(550);
-							AlRetorno.setTitle("Retorno do S@T");
+							AlRetorno.setHeaderText("Retorno do S@T");
 							AlRetorno.setHeaderText("Retorno da Função ConsultarStatusOperacional");
 							AlRetorno.setContentText("Mensagem de Retorno: " + retornoStr[2]);
 							TextArea textArea = new TextArea();
@@ -382,7 +391,7 @@ public class Main extends Application {
 							log.info("ConsultaStatusOperacional: " + e);
 							e.printStackTrace();
 							Alert alerta = new Alert(AlertType.ERROR);
-							alerta.setTitle("Status SAT");
+							alerta.setHeaderText("Status SAT");
 							alerta.setContentText(retorno);
 							alerta.showAndWait();
 						}
@@ -400,21 +409,10 @@ public class Main extends Application {
 				BtEnviarVenda = new Button("EnviarDadosVenda");
 				BtEnviarVenda.setOnAction(new EventHandler<ActionEvent>() {
 
-					/*
-					 * (non-Javadoc)
-					 * 
-					 * @see javafx.event.EventHandler#handle(javafx.event.Event)
-					 */
-					/*
-					 * (non-Javadoc)
-					 * 
-					 * @see javafx.event.EventHandler#handle(javafx.event.Event)
-					 */
-					public void handle(ActionEvent event) throws ArrayIndexOutOfBoundsException {
+					public void handle(ActionEvent event) {
 						// Enviar dados venda
 
 						try {
-
 							// Pega o xml escolhido pelo usuário
 							FileChooser abreArq = new FileChooser();
 							abreArq.setTitle("Abrir arquivo XML");
@@ -465,7 +463,7 @@ public class Main extends Application {
 
 							Alert AlRetorno = new Alert(AlertType.INFORMATION);
 							AlRetorno.setWidth(550);
-							AlRetorno.setTitle("Retorno do S@T");
+							AlRetorno.setHeaderText("Retorno do S@T");
 							AlRetorno.setHeaderText("Retorno da Função EnviarDadosVenda");
 							AlRetorno.setContentText("Mensagem de Retorno: " + retornoStr[3]);
 							TextArea textArea = new TextArea();
@@ -488,14 +486,10 @@ public class Main extends Application {
 							GridPane expContent = new GridPane();
 							expContent.setMaxWidth(Double.MAX_VALUE);
 							expContent.add(textArea, 0, 0);
-
-							// AlRetorno.getDialogPane().setExpandableContent(expContent);
 							AlRetorno.getDialogPane().setContent(expContent);
-
 							AlRetorno.showAndWait();
-
 							TfChaveAcesso.setText(retornoStr[8]);
-
+							
 							// Decodificando retorno Base64
 							xmlRetornoVenda = retornoStr[6];
 							log.info("Decodificando arquivo de retorno");
@@ -511,7 +505,7 @@ public class Main extends Application {
 								// Cria o arquivo xml com a chave de acesso no
 								// C:\
 								cfe = retornoStr[8];
-								arquivo = new File("C:\\APPBEMASAT\\" + cfe + ".xml");
+								arquivo = new File("C:\\APPBEMASAT\\CFE\\" + cfe + ".xml");
 								log.info("Criando o arquivo: " + arquivo.toString());
 								FileOutputStream fos = new FileOutputStream(arquivo);
 								fos.write(decoded.getBytes());
@@ -520,14 +514,23 @@ public class Main extends Application {
 								// +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 								// fazer o parse do arquivo e criar o documento
 								// XML
-								DocumentBuilderFactory dbfx = DocumentBuilderFactory.newInstance();
-								DocumentBuilder dbx = dbfx.newDocumentBuilder();
-								Document docx = dbx.parse(arquivo.toString());
+								Document docx = null;
+								try {
+									DocumentBuilderFactory dbfx = DocumentBuilderFactory.newInstance();
+									DocumentBuilder dbx = dbfx.newDocumentBuilder();
+									docx = dbx.parse(arquivo.toString());
+									
+								} catch (MalformedByteSequenceException e) {
+									e.printStackTrace();
+									Alert alerta = new Alert(AlertType.ERROR);
+									alerta.setHeaderText("Erro XML");
+									alerta.setContentText("XML com acentuações ou caracteres inválidos, por favor verifique!");
+									alerta.showAndWait();
+								}
+								
 
 								// Passo 1: obter o elemento raiz
 								Element raiz = docx.getDocumentElement();
-								// log.info("O elemento raiz é:
-								// "+raiz.getNodeName());
 
 								// Passo 2: obter nome do emitente
 								NodeList listaNome = raiz.getElementsByTagName("xNome");
@@ -564,20 +567,19 @@ public class Main extends Application {
 
 								NodeList listaIe = raiz.getElementsByTagName("IE");
 								Node ie = listaIe.item(0).getFirstChild();
-
 								log.info("CNPJ: " + cnpj.getNodeValue() + " IE: " + ie.getNodeValue());
 
-								// Passo 5: obter cpf do destinatário
-								/*
-								 * NodeList listaCpf =
-								 * raiz.getElementsByTagName("CPF"); if
-								 * (listaCpf.item(0)!=null) { Node cpf =
-								 * listaCpf.item(0).getFirstChild(); log.info(
-								 * "CPF/CNPJ do consumidor: "
-								 * +cpf.getNodeValue()); }
-								 * 
-								 * Node cpf=null;
-								 */
+								// Passo 5: obter cpf do destinatário											
+								NodeList listaCpf = raiz.getElementsByTagName("CPF");
+								Node cpf = listaCpf.item(0).getFirstChild();
+								String sCpf;
+								if (cpf == null) {
+									sCpf = "Não informado";
+									log.info("Sem CPF");
+								} else {
+									sCpf = cpf.getNodeValue();
+									log.info("CPF/CNPJ do consumidor: "+cpf.getNodeValue());									
+								}																
 
 								// Passo 6: obter dados da venda
 
@@ -734,6 +736,11 @@ public class Main extends Application {
 								NodeList listaAssQRCode = raiz.getElementsByTagName("assinaturaQRCODE");
 								Node assQRCode = listaAssQRCode.item(0).getFirstChild();
 								log.info("Ass. QRCode: " + assQRCode.getNodeValue());
+								
+								//Passo 17: obter número do caixa
+								NodeList listaNumCaixa = raiz.getElementsByTagName("numeroCaixa");
+								Node numCaixa = listaNumCaixa.item(0).getFirstChild();
+								log.info("Num. Caixa: " + numCaixa.getNodeValue());
 
 								/*
 								 * COMANDOS DE FORMATAÇÃO===============
@@ -765,15 +772,16 @@ public class Main extends Application {
 								 * Enfatizado (negrito): 1 = ativa o modo
 								 * enfatizado 0 = desativa o modo enfatizado
 								 * =====================================
-								 */							
+								 */	
+								
 
-								String name = "/APPBEMASAT/logo.bmp";
+								String name = "logo.bmp";
 								mp2032.ImprimeBitmap(name , 0);
 								
-								String BufTrans = "" + (char) 27 + (char) 51 + (char) 18;
+								String BufTrans = "" + (char) 27 + (char) 51 + (char) 18 + (char) 27 + (char) 97 + (char) 1;
 								mp2032.ComandoTX(BufTrans, BufTrans.length());
 								
-								String cabecalho = nome.getNodeValue() + "\n\r";
+								String cabecalho = "" + nome.getNodeValue() + "\n\r";
 								cabecalho += rua.getNodeValue() + " ";
 								cabecalho += num.getNodeValue() + " ";
 								cabecalho += compl.getNodeValue() + " ";
@@ -790,91 +798,90 @@ public class Main extends Application {
 								cabecalho += ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>";
 								cabecalho += "__________________________________________________";
 								mp2032.BematechTX(cabecalho);
-								log.info("\n"+cabecalho);
+								log.info("\n"+cabecalho);							
 
-								String cpf = "CPF/CNPJ do consumidor:                                            ";
-								cpf += "___________________________________________________________________";
-								cpf += "| COD |  DESC  |  QTD |  UN  | VL UN R$ |(VL TR R$) * | VL ITEM R$ ";
-								cpf += "___________________________________________________________________";
-								mp2032.FormataTX(cpf, 1, 0, 0, 0, 0);
-								log.info("\n"+cpf);
-
-								String cmd = ""+(char)27+(char)64;
-								mp2032.ComandoTX(cmd , cmd.length());
+								String infoCpf = "CPF/CNPJ do consumidor: "+sCpf+"\n";
+								infoCpf += 		 "___________________________________________________________________";
+								infoCpf += 		 "ITEM |COD|  DESC  | QTD | UN | VL UN R$ |(VL TR R$) * | VL ITEM R$ ";
+								infoCpf += 		 "___________________________________________________________________";
+								mp2032.FormataTX(infoCpf, 1, 0, 0, 0, 0);
+								log.info("\n"+infoCpf);								
 								
 								String infoVenda = "";
-								int cont = Integer.parseInt(id.getValue());
-								for (int i = 0; i < listaDet.getLength(); i++) {
-									infoVenda += id.getValue() + " ";
-									infoVenda += cod.getNodeValue() + " ";
-									infoVenda += descri.getNodeValue() + " ";
-									infoVenda += "\n\r" + qtde.getNodeValue() + " ";
-									infoVenda += un.getNodeValue() + " X " + valorUn.getNodeValue() + " ("
-											  + aliq.getNodeValue() + ") ";
-									infoVenda += valorItem.getNodeValue();
+								String infoVenda2 = "";
+								String infoVenda3 = "";
+								String somaLinha = "";
+							//	int cont = Integer.parseInt(id.getValue());
+								for (int i = 0; i < listaDet.getLength(); i++) 
+								{
+									//System.out.printf("%-30s : %50s%n", prop.getKey(), prop.getValue());
+									
+									String impVenda = String.format("%03d", i+1)  + " " + cod.getNodeValue() + " " + descri.getNodeValue() + " ";
+									infoVenda = String.format("%-65s", impVenda);
+									mp2032.FormataTX(infoVenda, 1, 0, 0, 0, 0);
+									
+									String infoUn = "\n" + qtde.getNodeValue() + " " + un.getNodeValue() + " X " + valorUn.getNodeValue() + " ("
+											  + aliq.getNodeValue() + ") ";																	
+									String infoItem = valorItem.getNodeValue();
+									//infoVenda3 = String.format("%"+soma+"s ", infoItem)+"\n";	
+									infoVenda3 = String.format("%-30s  %34s%n",infoUn, infoItem);
+									mp2032.FormataTX(infoVenda3, 1, 0, 0, 0, 0);
+								}																
 
-								}
-								mp2032.FormataTX(infoVenda, 1, 0, 0, 0, 0);
-								log.info("\n"+infoVenda);
-
-								String item = "\n\rTotal bruto do item ";
-								item += totalVenda.getNodeValue();
-								/*
-								 * while (it.length() < 48) { item += " " + it;
-								 * }
-								 */
+								String it = "\nTotal bruto do item ";
+								String item = String.format("%-20s  %28s%n",it, totalVenda.getNodeValue());
+								
 								item += "\n\r                  ------------------------------";
 								mp2032.BematechTX(item);
 								log.info("\n"+item);
 
-								String infoTot = "\nTOTAL R$ ";
-								infoTot += vCFe.getNodeValue();
-								/*
-								 * while (sTotal.length() < 48) { infoTot += " "
-								 * + sTotal; }
-								 */
+								String iTot = "\nTOTAL R$ ";
+								String infoTot = String.format("%-24s  %24s%n",iTot , vCFe.getNodeValue());
+
 								mp2032.FormataTX(infoTot, 2, 0, 0, 0, 1);
 								log.info("\n"+infoTot);
 
 								String pag = "";
 								switch (meioPag.getNodeValue()) {
 								case "01":
-									pag = "Dinheiro ";
+									pag = "\nDinheiro ";
 									break;
 								case "02":
-									pag = "Cheque ";
+									pag = "\nCheque ";
 									break;
 								case "03":
-									pag = "Cartão de Crédito ";
+									pag = "\nCartão de Crédito ";
 									break;
 								case "04":
-									pag = "Cartão de Débito ";
+									pag = "\nCartão de Débito ";
 									break;
 								case "05":
-									pag = "Crédito Loja ";
+									pag = "\nCrédito Loja ";
 									break;
 								case "10":
-									pag = "Vale Alimentação ";
+									pag = "\nVale Alimentação ";
 									break;
 								case "11":
-									pag = "Vale Refeição ";
+									pag = "\nVale Refeição ";
 									break;
 								case "12":
-									pag = "Vale Presente ";
+									pag = "\nVale Presente ";
 									break;
 								case "13":
-									pag = "Vale Combustível ";
+									pag = "\nVale Combustível ";
 									break;
 								case "99":
-									pag = "Outros ";
+									pag = "\nOutros ";
 									break;
 								default:
 									break;
 								}
-								String pagamento = "\n" + pag;
-								pagamento += valorPag.getNodeValue();
-								pagamento += "\n" + "Troco R$";
-								pagamento += troco.getNodeValue() + "\n";
+								String pagto = String.format("%-24s  %24s%n",pag, valorPag.getNodeValue());
+								mp2032.BematechTX(pagto);
+								log.info("\n"+pagto);
+								
+								String pagInfTr = "Troco R$";
+								String pagamento = String.format("%-24s  %24s%n", pagInfTr, troco.getNodeValue());
 								mp2032.BematechTX(pagamento);
 								log.info("\n"+pagamento);
 
@@ -898,12 +905,12 @@ public class Main extends Application {
 								mensagens += "\n\rValor aproximado dos tributos do item\n\r";
 								mensagens += "_______________________________________________________________";
 								mp2032.FormataTX(mensagens, 1, 0, 0, 0, 0);
-								log.info("\n"+mensagens);
+								log.info("\n"+mensagens);							
 
-								String centro2 = "" + (char) 27 + (char) 97 + (char) 0;
+								String centro2 = ""+(char)27+(char)97+(char)0;
 								mp2032.ComandoTX(centro2, centro2.length());
-
-								String numSerie = result.get();
+								
+								String numSerie = numSerieSat.getText();
 								String serie1 = numSerie.substring(0, 3) + ".";
 								String serie2 = numSerie.substring(3, 6) + ".";
 								String serie3 = numSerie.substring(6, 9);
@@ -963,20 +970,24 @@ public class Main extends Application {
 								int encodingModes = 1;
 								String codeQr = "";
 								if (retornoStr[10] != null) {
-									codeQr = textoChave + retornoStr[7] + retornoStr[9] + retornoStr[10]
+									codeQr = textoChave + "|" + retornoStr[7] + "|" + retornoStr[9] + "|" + retornoStr[10] + "|"
 											+ retornoStr[11];
 								} else {
-									codeQr = textoChave + retornoStr[7] + retornoStr[9] + retornoStr[11];
+									codeQr = textoChave + "|" + retornoStr[7] + "|" + retornoStr[9] + "||" + retornoStr[11] + "|";
 								}
 								iRetorno = mp2032.ImprimeCodigoQRCODE(errorCorrectionLevel, moduleSize, codeType,
 										QRCodeVersion, encodingModes, codeQr);
+																
+								/*String fCentro2 = "" + (char) 27 + (char) 64;// fecha
+																				// centralização
+								mp2032.ComandoTX(fCentro2, fCentro2.length());*/
+								
+								String sNumCaixa = "\nNúmero do Caixa: " + numCaixa.getNodeValue()+" - Aplicativo de testes - BSP Bematech S/A";
+								mp2032.FormataTX(sNumCaixa, 1, 0, 0, 0, 0);
 
 								int Modo = 1;
 								iRetorno = mp2032.AcionaGuilhotina(Modo);
 
-								String fCentro2 = "" + (char) 27 + (char) 64;// fecha
-																				// centralização
-								mp2032.ComandoTX(fCentro2, fCentro2.length());
 
 							} catch (IOException e) {
 								log.error("Erro de IOException na decodificação do retorno: ", e);
@@ -993,113 +1004,76 @@ public class Main extends Application {
 							e.printStackTrace();
 							log.error(e);
 							Alert alerta = new Alert(AlertType.ERROR);
-							alerta.setTitle("Erro ArrayIndexOutOfBoundsException");
+							alerta.setHeaderText("Erro ArrayIndexOutOfBoundsException");
 							alerta.setContentText(retorno);
 							alerta.showAndWait();
-						}
+							
+						} 
 					}
 
 				});
 
-				// Botão imprimir
-				// venda-----------------------------------------------------------
-
-				BtImprimirVenda = new Button("Imprimir Cupom");
-				BtImprimirVenda.setOnAction(new EventHandler<ActionEvent>() {
-
-					@Override
-					public void handle(ActionEvent event) {
-
-						ImprimeCFe parserImprimeCFe = new ImprimeCFe();
-
-						try {
-							List<ConteudoXML> conteudo = parserImprimeCFe.leituraXML(arquivo.toString());
-							for (ConteudoXML conteudoXML : conteudo) {
-								System.out.println(conteudoXML);
-								log.info(conteudoXML);
-							}
-
-						} catch (ParserConfigurationException e) {
-							log.error(e);
-							e.printStackTrace();
-						} catch (SAXException e) {
-							log.error(e);
-							e.printStackTrace();
-						} catch (IOException e) {
-							log.error(e);
-							e.printStackTrace();
-						}
-
-					}
-				});
 
 				// Posicionamento dos componentes no
 				// Pane=======================================
+				
+				mostraLogo.setTranslateX(470);
+				mostraLogo.setTranslateY(20);
 
-				TxCombo.setTranslateX(20);
-				TxCombo.setTranslateY(10);
-
-				CbModelo.setTranslateX(220);
-				CbModelo.setTranslateY(10);
-
-				TxPorta.setTranslateX(20);
-				TxPorta.setTranslateY(50);
-
-				/*
-				 * combo.setTranslateX(120); combo.setTranslateY(50);
-				 */
+				TxPorta.setTranslateX(20); // define orientação horizontal
+				TxPorta.setTranslateY(20); // define orientação vertical
 
 				TfPorta.setTranslateX(120);
-				TfPorta.setTranslateY(50);
+				TfPorta.setTranslateY(20);
 				TfPorta.setMaxWidth(80);
 
 				localImpressora.setTranslateX(210);
-				localImpressora.setTranslateY(50);
+				localImpressora.setTranslateY(20);
 
-				Separator sepHoriz = new Separator();
-				sepHoriz.prefWidth(600);
-				sepHoriz.setTranslateY(80);
-
-				LbSessao.setTranslateX(20); // define orientação horizontal
-				LbSessao.setTranslateY(110); // define orientação vertical
-
-				BtImprimirVenda.setTranslateX(20);
-				BtImprimirVenda.setTranslateY(260);
-
-				mostraLogo.setTranslateX(470);
-				mostraLogo.setTranslateY(10);
-
+				LbSessao.setTranslateX(20); 
+				LbSessao.setTranslateY(60);
+				
 				TfSessao.setTranslateX(130);
-				TfSessao.setTranslateY(110);
+				TfSessao.setTranslateY(60);
 
 				LbCodAtivacao.setTranslateX(200);
-				LbCodAtivacao.setTranslateY(110);
+				LbCodAtivacao.setTranslateY(60);
 
 				tfCodAtivacao.setTranslateX(320);
-				tfCodAtivacao.setTranslateY(110);
+				tfCodAtivacao.setTranslateY(60);												
 
 				BtConsultaSAT.setTranslateX(20);
-				BtConsultaSAT.setTranslateY(150);
-				BtConsultaSAT.setMinWidth(200);
+				BtConsultaSAT.setTranslateY(100);
+				BtConsultaSAT.setMinWidth(160);
 
-				BtConsStatusOp.setTranslateX(240);
-				BtConsStatusOp.setTranslateY(150);
-				BtConsStatusOp.setMinWidth(200);
+				BtConsStatusOp.setTranslateX(210);
+				BtConsStatusOp.setTranslateY(100);
+				BtConsStatusOp.setMinWidth(160);
+				
+				lbNumSerieSat.setTranslateX(410);
+				lbNumSerieSat.setTranslateY(110);
+				
+				numSerieSat.setTranslateX(490);
+				numSerieSat.setTranslateY(110);
+				numSerieSat.setMaxWidth(80);
 
-				TfChaveAcesso.setTranslateX(240);
-				TfChaveAcesso.setTranslateY(200);
+				TfChaveAcesso.setTranslateX(210);
+				TfChaveAcesso.setTranslateY(160);
 				TfChaveAcesso.setMinWidth(360);
 
 				BtEnviarVenda.setTranslateX(20);
-				BtEnviarVenda.setTranslateY(200);
-				BtEnviarVenda.setMinWidth(200);
+				BtEnviarVenda.setTranslateY(160);
+				BtEnviarVenda.setMinWidth(150);
+				
+				/*BtImprimirVenda.setTranslateX(20);
+				BtImprimirVenda.setTranslateY(220);*/
 
 				Pane root = new Pane();
-				root.getChildren().addAll(TxCombo, TxPorta, CbModelo, TfPorta, localImpressora, sepHoriz, LbSessao,
+				root.getChildren().addAll(TxPorta, TfPorta, localImpressora, LbSessao,
 						TfSessao, LbCodAtivacao, tfCodAtivacao, mostraLogo, BtConsultaSAT, BtConsStatusOp,
-						TfChaveAcesso, BtEnviarVenda, BtImprimirVenda);
+						TfChaveAcesso, BtEnviarVenda, lbNumSerieSat, numSerieSat);
 				root.getStyleClass().add("root");
-				Scene scene = new Scene(root, 650, 650);
+				Scene scene = new Scene(root, 650, 350);
 				scene.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
 				primaryStage.setScene(scene);
 				primaryStage.setTitle("Teste BemaSAT    SAT: " + result.get());
