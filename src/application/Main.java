@@ -6,20 +6,13 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.Reader;
 import java.io.UnsupportedEncodingException;
-import java.lang.reflect.InvocationTargetException;
 import java.nio.charset.Charset;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.Enumeration;
-import java.util.List;
-import java.util.Optional;
 import java.util.Random;
 import java.util.regex.Pattern;
 
-import javax.comm.*;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -36,32 +29,24 @@ import org.xml.sax.SAXException;
 
 import com.sun.org.apache.xerces.internal.impl.dv.util.Base64;
 import com.sun.org.apache.xerces.internal.impl.io.MalformedByteSequenceException;
-import com.thoughtworks.xstream.XStream;
 
 import javafx.application.Application;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
+import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
-import javafx.scene.control.Separator;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
-import javafx.scene.control.TextInputDialog;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
-import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
-import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Modality;
@@ -100,6 +85,9 @@ public class Main extends Application {
 	String retornoStr[];
 	TextField numSerieSat;
 	Label lbNumSerieSat;
+	Button BtPrSair;
+	Button BtAbrirLog;
+	Label textoBsp;
 
 	Button localImpressora;
 	Label TxPorta;
@@ -158,25 +146,20 @@ public class Main extends Application {
 		} else {
 			log.info("Não foi possível criar o diretório " + dirCfe.getName() + " ou ele já existe.");
 		}
-
-		
-		/*TextInputDialog codAtivacao = new TextInputDialog("900006420");
-		codAtivacao.setTitle("Teste BemaSAT - BSP Bematech®");
-		codAtivacao.setHeaderText("Insira o número de série do SAT sem o digito");*/
 		
 		final Stage dialog = new Stage();
         dialog.initModality(Modality.APPLICATION_MODAL);
         dialog.initOwner(primaryStage);
         Pane PaneDialog = new Pane();
         texto = new Text("Número de série do SAT sem o digito: ");
-        TfSerie = new TextField("900006420");
+        TfSerie = new TextField("900006420");      
         TfSerie.setMaxWidth(80);
         BtCancelar = new Button("Cancelar");
         BtCancelar.setOnAction(new EventHandler<ActionEvent>() {
 
 			@Override
 			public void handle(ActionEvent event) {
-				// TODO Auto-generated method stub
+				// TODO Sair
 				dialog.close();
 			}
 		});
@@ -186,16 +169,17 @@ public class Main extends Application {
 
 			@Override
 			public void handle(ActionEvent event) {
-				// TODO Entrar
-				
-		
-
-		// maneira tradicional para obter o valor de resposta.
-		//Optional<String> result = codAtivacao.showAndWait();		
 			
 		numSerieSat = new TextField(TfSerie.getText());
 		lbNumSerieSat = new Label("Série do SAT ");	
-			
+		
+		if (TfSerie.getText().length() != 9) {
+	           Alert alerta = new Alert(AlertType.WARNING);
+	           alerta.setHeaderText("Valor Inválido!");
+	           alerta.setContentText("Favor inserir um valor com 9 dígitos!");
+	           alerta.showAndWait();
+	        } else {
+							
 		//if (dialog.isPresent()) {
 
 			try {
@@ -295,9 +279,12 @@ public class Main extends Application {
 							AlRetorno.setHeaderText("Retorno do S@T");
 							AlRetorno.setHeaderText("Retorno da Função ConsultaSAT");
 
-							AlRetorno.setContentText(
+							retornoStr[2] = new String(retornoStr[2].getBytes() ,Charset.forName("UTF-8"));	
+							String retConsulta =
 									"Número de Sessão: " + retornoStr[0] + "\n\r" + "Código de Retorno: "
-											+ retornoStr[1] + "\n\r" + "Mensagem de Retorno: " + retornoStr[2]);
+											+ retornoStr[1] + "\n\r" + "Mensagem de Retorno: " + retornoStr[2];
+																				
+							AlRetorno.setContentText(retConsulta);
 							AlRetorno.showAndWait();
 						} catch (ArrayIndexOutOfBoundsException e) {
 							log.info("ConsultarSAT: " + e);
@@ -306,7 +293,7 @@ public class Main extends Application {
 							alerta.setHeaderText("Status SAT");
 							alerta.setContentText(retorno);
 							alerta.showAndWait();
-						}
+						} 
 
 					}
 				});
@@ -337,7 +324,7 @@ public class Main extends Application {
 							TextArea textArea = new TextArea();
 							textArea.setEditable(false);
 							textArea.setWrapText(true);
-							textArea.setText("Número de Sessão: " + retornoStr[0] + "\n\r" + "Código de Retorno: "
+							String ret = "Número de Sessão: " + retornoStr[0] + "\n\r" + "Código de Retorno: "
 									+ retornoStr[1] + "\n\r" + "Mensagem de Retorno: " + retornoStr[2] + "\n\r"
 									+ "Código Mensagem SEFAZ:  " + retornoStr[3] + "\n\r" + "Mensagem da Sefaz: "
 									+ retornoStr[4] + "\n\r" + "Número de Série: " + retornoStr[5] + "\n\r"
@@ -355,8 +342,8 @@ public class Main extends Application {
 									+ "Última Transmissão de CF-e: " + retornoStr[23] + "\n\r"
 									+ "Última Comunicação com SEFAZ: " + retornoStr[24] + "\n\r"
 									+ "Emissão do Certificado: " + retornoStr[25] + "\n\r"
-									+ "Vencimento do Certificado: " + retornoStr[26] + "\n\r");
-
+									+ "Vencimento do Certificado: " + retornoStr[26] + "\n\r";
+							textArea.setText(ret);		
 							textArea.setMaxWidth(Double.MAX_VALUE);
 							textArea.setMaxHeight(Double.MAX_VALUE);
 							GridPane.setVgrow(textArea, Priority.ALWAYS);
@@ -453,15 +440,17 @@ public class Main extends Application {
 							TextArea textArea = new TextArea();
 							textArea.setEditable(false);
 							textArea.setWrapText(true);
-							textArea.setText("Número de Sessão: " + retornoStr[0] + "\n\r" + "Código de Retorno: "
+							retornoStr[3] = new String(retornoStr[3].getBytes() ,Charset.forName("UTF-8"));
+							String retConsulta = "Número de Sessão: " + retornoStr[0] + "\n\r" + "Código de Retorno: "
 									+ retornoStr[1] + "\n\r" + "Código de retorno de cancelamento: " + retornoStr[2]
 									+ "\n\r" + "Mensagem de Retorno: " + retornoStr[3] + "\n\r" + "Código SEFAZ: "
 									+ retornoStr[4] + "\n\r" + "Mensagem SEFAZ: " + retornoStr[5] + "\n\r"
 									+ "Data e hora da emissão: " + retornoStr[7] + "\n\r" + "Chave de acesso: "
 									+ retornoStr[8] + "\n\r" + "Valor Total CF-e: " + retornoStr[9] + "\n\r"
 									+ "Número do CPF ou CNPJ do adquirente: " + retornoStr[10] + "\n\r"
-									+ "Assinatura QRCode: " + retornoStr[11] + "\n\r");
-
+									+ "Assinatura QRCode: " + retornoStr[11] + "\n\r";
+								
+							textArea.setText(retConsulta);
 							textArea.setMaxWidth(Double.MAX_VALUE);
 							textArea.setMaxHeight(Double.MAX_VALUE);
 							GridPane.setVgrow(textArea, Priority.ALWAYS);
@@ -777,17 +766,18 @@ public class Main extends Application {
 								cabecalho += "EXTRATO No. 000000";
 								cabecalho += " \n\rCUPOM FISCAL ELETRÔNICO - SAT\n\r";
 								cabecalho += "= TESTE =\n\r";
-								cabecalho += ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>";
-								cabecalho += ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>";
-								cabecalho += ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>";
-								cabecalho += "__________________________________________________";
-								mp2032.BematechTX(cabecalho);
-								log.info("\n"+cabecalho);							
+								mp2032.BematechTX(cabecalho + "__________________________________________________\n");
+								log.info(cabecalho);
+								String cabecalho2 = ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>";
+								cabecalho2 += ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>";
+								cabecalho2 += ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>";
+								cabecalho2 += "__________________________________________________\n";
+								mp2032.BematechTX(cabecalho2);														
 
 								String infoCpf = "CPF/CNPJ do consumidor: "+sCpf+"\n";
-								infoCpf += 		 "___________________________________________________________________";
-								infoCpf += 		 "ITEM |COD|  DESC  | QTD | UN | VL UN R$ |(VL TR R$) * | VL ITEM R$ ";
-								infoCpf += 		 "___________________________________________________________________";
+								infoCpf += 		 "___________________________________________________________________\n";
+								infoCpf += 		 "ITEM |COD|  DESC  | QTD | UN | VL UN R$ |(VL TR R$) * | VL ITEM R$ \n";
+								infoCpf += 		 "___________________________________________________________________\n";
 								mp2032.FormataTX(infoCpf, 1, 0, 0, 0, 0);
 								log.info("\n"+infoCpf);								
 								
@@ -803,6 +793,7 @@ public class Main extends Application {
 									String impVenda = String.format("%03d", i+1)  + " " + cod.getNodeValue() + " " + descri.getNodeValue() + " ";
 									infoVenda = String.format("%-65s", impVenda);
 									mp2032.FormataTX(infoVenda, 1, 0, 0, 0, 0);
+									log.info("\n"+infoVenda);
 									
 									String infoUn = "\n" + qtde.getNodeValue() + " " + un.getNodeValue() + " X " + valorUn.getNodeValue() + " ("
 											  + aliq.getNodeValue() + ") ";																	
@@ -810,6 +801,7 @@ public class Main extends Application {
 									//infoVenda3 = String.format("%"+soma+"s ", infoItem)+"\n";	
 									infoVenda3 = String.format("%-30s  %34s%n",infoUn, infoItem);
 									mp2032.FormataTX(infoVenda3, 1, 0, 0, 0, 0);
+									log.info("\n"+infoVenda3);
 								}																
 
 								String it = "\nTotal bruto do item ";
@@ -989,12 +981,42 @@ public class Main extends Application {
 							log.error(e);
 							Alert alerta = new Alert(AlertType.ERROR);
 							alerta.setHeaderText("Erro ArrayIndexOutOfBoundsException");
-							alerta.setContentText(retorno);
+							alerta.setContentText(retorno = new String(retorno.getBytes() ,Charset.forName("UTF-8")));
 							alerta.showAndWait();
 							
 						} 
 					}
 
+				});
+				
+				textoBsp = new Label("Exemplo com a BemaSAT.dll - BSP Bematech® - J.C. Bruno");
+				textoBsp.getStyleClass().add("textoBsp");
+				
+				//BOTÃO ABRIR LOG=========================================
+				BtAbrirLog = new Button("Abrir Log");
+				BtAbrirLog.setOnAction(new EventHandler<ActionEvent>() {
+
+					@Override
+					public void handle(ActionEvent event) {
+						// TODO Abrir log
+						try {
+							java.awt.Desktop.getDesktop().open( new File( "C:\\APPBEMASAT\\TesteACbemaSAT.log" ) );
+						} catch (IOException e) {
+							e.printStackTrace();
+						}
+					}
+				});
+				
+				//BOTÃO SAIR =============================================
+				BtPrSair = new Button("Sair");
+				BtPrSair.setOnAction(new EventHandler<ActionEvent>() {
+
+					@Override
+					public void handle(ActionEvent event) {
+						// TODO Sair Root
+						primaryStage.close();
+						log.info("Saindo da aplicação...\n=====================================================================================================");
+					}
 				});
 
 
@@ -1019,6 +1041,7 @@ public class Main extends Application {
 				
 				TfSessao.setTranslateX(130);
 				TfSessao.setTranslateY(60);
+				TfSessao.getStyleClass().add("TfSessao");
 
 				LbCodAtivacao.setTranslateX(200);
 				LbCodAtivacao.setTranslateY(60);
@@ -1027,11 +1050,11 @@ public class Main extends Application {
 				tfCodAtivacao.setTranslateY(60);												
 
 				BtConsultaSAT.setTranslateX(20);
-				BtConsultaSAT.setTranslateY(100);
+				BtConsultaSAT.setTranslateY(110);
 				BtConsultaSAT.setMinWidth(160);
 
 				BtConsStatusOp.setTranslateX(210);
-				BtConsStatusOp.setTranslateY(100);
+				BtConsStatusOp.setTranslateY(110);
 				BtConsStatusOp.setMinWidth(160);
 				
 				lbNumSerieSat.setTranslateX(410);
@@ -1049,43 +1072,65 @@ public class Main extends Application {
 				BtEnviarVenda.setTranslateY(160);
 				BtEnviarVenda.setMinWidth(150);
 				
-				/*BtImprimirVenda.setTranslateX(20);
-				BtImprimirVenda.setTranslateY(220);*/
-
+				textoBsp.setTranslateX(20);
+				textoBsp.setTranslateY(310);
+				
+				BtAbrirLog.setTranslateX(380);
+				BtAbrirLog.setTranslateY(300);
+				BtAbrirLog.setMinWidth(100);
+				
+				BtPrSair.setTranslateX(500);
+				BtPrSair.setTranslateY(300);
+				BtPrSair.setMinWidth(100);
+				
+				
 				Pane root = new Pane();
 				root.getChildren().addAll(TxPorta, TfPorta, localImpressora, LbSessao,
 						TfSessao, LbCodAtivacao, tfCodAtivacao, mostraLogo, BtConsultaSAT, BtConsStatusOp,
-						TfChaveAcesso, BtEnviarVenda, lbNumSerieSat, numSerieSat);
+						TfChaveAcesso, BtEnviarVenda, lbNumSerieSat, numSerieSat, textoBsp, BtAbrirLog, BtPrSair);
 				root.getStyleClass().add("root");
 				Scene scene = new Scene(root, 650, 350);
 				scene.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
 				primaryStage.setScene(scene);
-				//primaryStage.setTitle("Teste BemaSAT    SAT: " + result.get());
+				primaryStage.setTitle("Teste BemaSAT - BSP Bematech® 2016");
 				primaryStage.getIcons().add(logo);
 				primaryStage.show();
 
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
+			dialog.close();
 			}
-		});
+			}
+        });
         
-        texto.setTranslateX(20);
-        texto.setTranslateY(20);
+        texto.setTranslateX(10);
+        texto.setTranslateY(30);
         
-        TfSerie.setTranslateX(90);
-        TfSerie.setTranslateY(40);
+        TfSerie.setTranslateX(230);
+        TfSerie.setTranslateY(20);
         
-        BtCancelar.setTranslateX(20);
-        BtCancelar.setTranslateY(100);
+        BtCancelar.setTranslateX(30);
+        BtCancelar.setTranslateY(70);
         BtCancelar.setMinWidth(120);
         
-        BtEntrar.setTranslateX(160);
-        BtEntrar.setTranslateY(100);
+        BtEntrar.setTranslateX(170);
+        BtEntrar.setTranslateY(70);
         BtEntrar.setMinWidth(120);
         
         PaneDialog.getChildren().addAll(texto,TfSerie,BtCancelar,BtEntrar);
-        Scene dialogScene = new Scene(PaneDialog, 300, 160);
+        PaneDialog.getStyleClass().add("paneDialog");
+        Scene dialogScene = new Scene(PaneDialog, 330, 110);
+        dialogScene.setOnKeyPressed(new EventHandler<Event>() {
+
+			@Override
+			public void handle(Event event) {
+				// TODO Auto-generated method stub
+				BtEntrar.setDefaultButton(true);
+				
+			}
+		});
+        dialogScene.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
         dialog.setScene(dialogScene);
         dialog.show();
 
